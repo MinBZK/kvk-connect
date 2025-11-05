@@ -93,7 +93,7 @@ bump tag:
 [group('deployment')]
 deploy version:
     just build
-    uv publish --index testpypi
+    uv publish
     @echo 'Package v{{ version }} published successfully'
 
 
