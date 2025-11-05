@@ -1,0 +1,50 @@
+# VCS
+.git/
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Tests and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+.cache/
+.tox/
+.mypy_cache/
+coverage.xml
+
+# IDE/OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs and local data
+*.log
+logs/
+tmp/
+data/
+secrets/
+
+# Env files (provided at runtime)
+.env
+.env.*
+!.env.*.example

@@ -1,0 +1,109 @@
+{
+  "kvkNummer": "64583341",
+  "indNonMailing": "Ja",
+  "naam": "Raya Jameel",
+  "formeleRegistratiedatum": "20151119",
+  "materieleRegistratie": {
+    "datumAanvang": "20151119",
+    "datumEinde": "20181019"
+  },
+  "totaalWerkzamePersonen": 3,
+  "handelsnamen": [
+    {
+      "naam": "Raya Jameel",
+      "volgorde": 0
+    },
+    {
+      "naam": "Tandartspraktijk Jasmijnbloemen",
+      "volgorde": 1
+    }
+  ],
+  "sbiActiviteiten": [
+    {
+      "sbiCode": "86230",
+      "sbiOmschrijving": "Tandheelkundige zorg",
+      "indHoofdactiviteit": "Ja"
+    }
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+    },
+    {
+      "rel": "vestigingen",
+      "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/vestigingen"
+    }
+  ],
+  "_embedded": {
+    "hoofdvestiging": {
+      "vestigingsnummer": "000033396841",
+      "kvkNummer": "64583341",
+      "formeleRegistratiedatum": "20151119",
+      "materieleRegistratie": {
+        "datumAanvang": "20151119"
+      },
+      "eersteHandelsnaam": "Raya Jameel",
+      "indHoofdvestiging": "Ja",
+      "indCommercieleVestiging": "Ja",
+      "totaalWerkzamePersonen": 3,
+      "adressen": [
+        {
+          "type": "correspondentieadres",
+          "indAfgeschermd": "Nee",
+          "volledigAdres": "Gijsbrecht van Amstelstraat 355 D 1215CP Hilversum",
+          "straatnaam": "Gijsbrecht van Amstelstraat",
+          "huisnummer": 355,
+          "huisletter": "D",
+          "postcode": "1215CP",
+          "plaats": "Hilversum",
+          "land": "Nederland",
+          "geoData": {
+            "addresseerbaarObjectId": "0402010001619862",
+            "nummerAanduidingId": "0402200001619863",
+            "gpsLatitude": 52.21725800248481,
+            "gpsLongitude": 5.15786484845352,
+            "rijksdriehoekX": 139327.053,
+            "rijksdriehoekY": 469932.226,
+            "rijksdriehoekZ": 0.0
+          }
+        }
+      ],
+      "websites": [
+        "https://www.tpjasmijnbloemen.nl"
+      ],
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/hoofdvestiging"
+        },
+        {
+          "rel": "vestigingen",
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/vestigingen"
+        },
+        {
+          "rel": "basisprofiel",
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+        },
+        {
+          "rel": "vestigingsprofiel",
+          "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000033396841"
+        }
+      ]
+    },
+    "eigenaar": {
+      "rechtsvorm": "Eenmanszaak",
+      "uitgebreideRechtsvorm": "Eenmanszaak",
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/eigenaar"
+        },
+        {
+          "rel": "basisprofiel",
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+        }
+      ]
+    }
+  }
+}

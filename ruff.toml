@@ -1,0 +1,74 @@
+# Ruff Configuration File
+# This file configures the Ruff linter, which is used to enforce code quality and style.
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    # Version control directories
+    ".bzr", ".git", ".hg", ".svn",
+    # Python environment and cache directories
+    ".direnv", ".eggs", ".mypy_cache", ".pytest_cache", ".pytype", ".ruff_cache", ".venv", "__pycache__",
+    # Build and distribution directories
+    "_build", "buck-out", "build", "dist",
+    # Node.js and other project-specific directories
+    "node_modules", "site-packages", "venv",
+    # Logs and temporary files
+    "logs.log", "mlruns", "mlflow_benchmark",
+    # Documentation and data directories
+    "docs", "data",
+    "tests",
+    "__init__.py",
+]
+
+# Force exclude ensures these directories are always ignored.
+force-exclude = true
+
+#Klikbaar vanuit IDE Terminal
+output-format = "concise"
+
+# Set the maximum line length for code.
+line-length = 120
+
+# Specify the target Python version for linting.
+target-version = "py312"
+
+[lint]
+# Enable specific linting rules.
+select = [
+    "E",    # pycodestyle rules
+    "N",    # pep8-naming rules
+    "F",    # pyflakes rules
+    "D",    # pydocstyle rules
+]
+
+# Ignore specific linting rules.
+ignore = [
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D107",  # Missing docstring in __init__
+    "D202",  # No blank lines allowed after function docstring
+    "D413",  # Missing blank line after last section
+]
+
+# Allow fix for all enabled rules when `--fix` is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Configure code formatting options.
+quote-style = "double"
+skip-magic-trailing-comma = true
+line-ending = "auto"
+indent-style = "space" # Default is "4" spaces.
+docstring-code-format = true
+docstring-code-line-length = 120 # Use "dynamic" to use the line-length value from "line-length".
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files.
+"tests/**" = ["D103","D102"]  # Ignore missing docstrings in tests
+
+[lint.pydocstyle]
+# Use the Google style guide for docstrings.
+convention = "google"

@@ -1,0 +1,13 @@
+{
+    "klantId": "6b3362b2-4850-429a-a869-f838bba1887d",
+    "abonnementen": [
+        {
+            "id": "b1697f81-3ece-4c79-bd98-186dd459f4e1",
+            "contract": {
+                "id": "00662355"
+            },
+            "startDatum": "2025-10-01T22:00:00Z",
+            "actief": true
+        }
+    ]
+}

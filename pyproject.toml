@@ -1,0 +1,65 @@
+[project]
+name = "kvk-connect"
+version = "0.1.5"
+description = "Client + domain mapping for KVK API"
+readme = "README.md"
+requires-python = ">=3.13"
+authors = [{ name = "Rob Verkuijlen" }]
+license = "EUPL-1.2"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)",
+    "Natural Language :: Dutch",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "requests>=2.32.5",
+    "python-dotenv>=1.2.1",
+    "ratelimit>=2.2.1",
+    "certifi>=2025.10.5",
+    "sqlalchemy>=2.0.44",
+    "pyodbc>=5.3.0",
+    "psycopg2-binary>=2.9.9",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=4.1.0",
+    "types-requests>=2.31.0",
+    "ruff>=0.14.0",
+    "pyright>=1.1.407",
+    "types-ratelimit>=2.2.0.20250501",
+    "twine>=6.2.0",
+    "pre-commit>=4.3.0",
+]
+docker = [
+    "gunicorn>=22.0.0",
+]
+
+# ruff.toml file is used.
+[tool.ruff]
+
+# pyrightconfig.json file is used.
+[tool.pyright]
+
+# pytest.ini file is used.
+[tool.pytest]
+
+[build-system]
+requires = ["uv-build"]
+build-backend = "uv_build"
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true

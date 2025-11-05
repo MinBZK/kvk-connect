@@ -1,0 +1,101 @@
+name: kvk-connect-db-external
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/gateway/Dockerfile
+    container_name: kvk-gateway
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    env_file:
+      - .env.docker
+    networks:
+      - kvk-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  mutatie-reader:
+    build:
+      context: .
+      dockerfile: apps/mutatie-reader/Dockerfile
+    container_name: kvk-mutatie-reader
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - KVK_BASE_URL=http://gateway/api/v1
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - kvk-network
+
+  basisprofiel:
+    build:
+      context: .
+      dockerfile: apps/basisprofiel/Dockerfile
+      args:
+        INCLUDE_MSSQL: "true"
+    container_name: kvk-basisprofiel
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - KVK_BASE_URL=http://gateway/api/v1
+    depends_on:
+      gateway:
+        condition: service_healthy
+      mutatie-reader:
+        condition: service_started
+    networks:
+      - kvk-network
+
+  vestigingen:
+    build:
+      context: .
+      dockerfile: apps/vestigingen/Dockerfile
+      args:
+        INCLUDE_MSSQL: "true"
+    container_name: kvk-vestigingen
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - KVK_BASE_URL=http://gateway/api/v1
+    depends_on:
+      gateway:
+        condition: service_healthy
+      basisprofiel:
+        condition: service_started
+    networks:
+      - kvk-network
+
+  vestigingsprofiel:
+    build:
+      context: .
+      dockerfile: apps/vestigingsprofiel/Dockerfile
+      args:
+        INCLUDE_MSSQL: "true"
+    container_name: kvk-vestigingsprofiel
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - KVK_BASE_URL=http://gateway/api/v1
+    depends_on:
+      gateway:
+        condition: service_healthy
+      vestigingen:
+        condition: service_started
+    networks:
+      - kvk-network
+
+networks:
+  kvk-network:
+    driver: bridge

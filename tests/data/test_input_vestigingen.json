@@ -1,0 +1,554 @@
+{
+    "kvkNummer": "01070163",
+    "aantalCommercieleVestigingen": 38,
+    "aantalNietCommercieleVestigingen": 0,
+    "totaalAantalVestigingen": 38,
+    "vestigingen": [
+        {
+            "vestigingsnummer": "000020498381",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Ja",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Stationsplein 4 3818LE Amersfoort",
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163/hoofdvestiging"
+                },
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000020498381"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000016823753",
+            "eersteHandelsnaam": "A ware Workum",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Spoardyk 19 8711CK Workum",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000016823753"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430372",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "It Heech 4 9035AE Dronryp",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430372"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021232",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Kanaalweg 32 1851LP Heiloo",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021232"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021275",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Keenstraat 55 3044CD Rotterdam",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021275"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021259",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Lageweg 4 3299AL Maasdam",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021259"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021313",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Pieter Stuyvesantweg 1 8937AC Leeuwarden",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021313"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000016290658",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Pieter Langendijksingel 2 5216JZ 's-Hertogenbosch",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000016290658"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000020091710",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Hoogeindsestraat 31 5447PE Rijkevoort",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000020091710"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000038976587",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Oliemolenweg 4 A 7944HX Meppel",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000038976587"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430747",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Frankeneng 12 6717AG Ede",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430747"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000020030959",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Frisaxstraat 4 8471ZW Wolvega",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000020030959"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430429",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Noorderringweg 33 9363HA Marum",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430429"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021380",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Amp\u00e8relaan 4 9207AM Drachten",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021380"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430720",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Verlaatsterweg 26 9873PA Gerkesklooster",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430720"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430348",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Boterdiep Wz 45 9781EL Bedum",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430348"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000016288904",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Mientweg 20 1732LE Lutjewinkel",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000016288904"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021267",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Blekerijlaan 2 3447GR Woerden",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021267"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021364",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Dusseldorperweg 36 1906AK Limmen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021364"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021186",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Steenstraat 20 4751GS Oud Gastel",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021186"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000027526801",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Bronland 20 6708WH Wageningen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000027526801"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000016290186",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Handelstraat 11 4143HT Leerdam",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000016290186"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021208",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Dirk Boutslaan 2 5613LH Eindhoven",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021208"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000061688339",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Zuivelstraat 1 3299XZ Maasdam",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000061688339"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021305",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Nieuwe Kanaal 7 c 6709PA Wageningen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021305"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000015919455",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Broekveldselaan 9 2411NL Bodegraven",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000015919455"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021445",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Achterweg 20 1906AG Limmen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021445"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000019021488",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Gulberg 18 5674TE Nuenen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000019021488"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430917",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Noorderweg 27 9824PA Noordwijk",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430917"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430712",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Spoardyk 21 8711CK Workum",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430712"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430933",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Needseweg 23 7271AB Borculo",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430933"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000038976579",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Lage Landstraat 7 5462GJ Veghel",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000038976579"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430356",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "De Perk 30 9411PZ Beilen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430356"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430577",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Coevorderweg 40 7707AR Balkbrug",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430577"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430534",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Toldijkseweg 21 7221DB Steenderen",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430534"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000017430496",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Kanaalstraat 4 7241DA Lochem",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000017430496"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000020030940",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "N.C.B.-laan 80 5462GE Veghel",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000020030940"
+                }
+            ]
+        },
+        {
+            "vestigingsnummer": "000016288858",
+            "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
+            "indHoofdvestiging": "Nee",
+            "indAdresAfgeschermd": "Nee",
+            "indCommercieleVestiging": "Ja",
+            "volledigAdres": "Leonard Langweg 2 6121PA Born",
+            "links": [
+                {
+                    "rel": "vestigingsprofiel",
+                    "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000016288858"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "rel": "self",
+            "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163/vestigingen"
+        },
+        {
+            "rel": "basisprofiel",
+            "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163"
+        }
+    ]
+}
