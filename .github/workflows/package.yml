@@ -45,6 +45,6 @@ jobs:
         run: uv build
 
       - name: Publish to Package Registry
-        run: uv publish --index testpypi
+        run: uv publish
         env:
           UV_PUBLISH_TOKEN: ${{ secrets.KVKCONNECT_DEPLOY_TOKEN }}
