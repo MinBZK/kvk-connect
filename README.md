@@ -157,19 +157,9 @@ Available recipes:
 
 ## Data Flow van de Docker Apps
 
-De vier Docker apps werken onafhankelijk van elkaar samen om de KVK data actueel te houden:
+De vijf Docker apps werken onafhankelijk van elkaar samen om de KVK data actueel te houden:
 
 ![AppsStructure](docs/apps.drawio.svg)
-
-
-### Proces
-
-De apps draaien met `depends_on` ordering:
-
-1. **mutatie-reader** start eerst → pollt KVK Mutaties
-2. **basisprofiel** start → verwerkt signalen, haalt bedrijfsgegevens op
-3. **vestigingen** start → haalt vestigings-lijsten per bedrijf
-4. **vestigingsprofiel** start → haalt adres/postbus per vestiging
 
 
 ## Database Schema (ORM Model)
