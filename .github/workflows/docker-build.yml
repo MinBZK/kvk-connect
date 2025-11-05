@@ -1,0 +1,78 @@
+name: Build and Push Docker Images
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-services:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - basisprofiel
+          - mutatie-reader
+          - gateway
+          - vestigingen
+          - vestigingsprofiel
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Read version from pyproject.toml
+        id: version
+        run: |
+          version=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Version: $version"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository owner
+        id: lowercase-owner
+        run: |
+          owner=${GITHUB_REPOSITORY%%/*}
+          owner=${owner,,}
+          echo "repo_owner=$owner" >> $GITHUB_OUTPUT
+
+      - name: Extract metadata
+        id: meta
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build and Push ${{ matrix.service }}
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/${{ matrix.service }}/Dockerfile
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}
+            BUILD_SHA=${{ steps.meta.outputs.short_sha }}
+          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64
+          tags: |
+            ghcr.io/${{ steps.lowercase-owner.outputs.repo_owner }}/${{ matrix.service }}:${{ steps.version.outputs.version }}
+            ghcr.io/${{ steps.lowercase-owner.outputs.repo_owner }}/${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: echo "Built ${{ matrix.service }}:${{ steps.version.outputs.version }} with digest ${{ steps.build.outputs.digest }}"

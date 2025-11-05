@@ -1,0 +1,48 @@
+default_language_version:
+  python: python3.13
+repos:
+
+  # Badic checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      #- id: check-json # vanwege pyrightconfig.json
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: detect-private-key
+
+  # Ruff linting and formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.3
+    hooks:
+      - id: ruff
+        name: Ruff check
+        description: "Run 'ruff check' for fast Python linting"
+        args: [ --fix-only, --config=ruff.toml ] # Apply fixes and exit with non-zero if fix is not possible.
+
+      - id: ruff-format
+        name: Ruff format
+        description: "Run 'ruff format' for fast Python formatting"
+        args: [ --config=ruff.toml ]
+
+  # To make sure your uv.lock file is up to date even if your pyproject.toml file was changed
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.9.7
+    hooks:
+      - id: uv-lock
+
+  #Github Workflow linter
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.8
+    hooks:
+      - id: actionlint
+
+#  - repo: https://github.com/hadolint/hadolint
+#    rev: v2.14.0
+#    hooks:
+#      - id: hadolint-docker
+#        name: Lint Dockerfiles

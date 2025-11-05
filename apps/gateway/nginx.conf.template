@@ -1,0 +1,67 @@
+worker_processes auto;
+events {
+    worker_connections 64;
+}
+
+http {
+    # Rate limiting zone
+    limit_req_zone $binary_remote_addr zone=kvk_limit:10m rate=${RATE_LIMIT_CALLS}r/s;
+
+    # Map voor conditional logging (1 = log, 0 = skip)
+    map $status $loggable {
+        200     0;  # Success niet loggen
+        404     0;  # Not found komt veel voor bij tijdelijke updates
+        default 1;  # Rest wel loggen (3xx, 4xx, 5xx)
+    }
+
+    # Logging
+    log_format kvk_format '$remote_addr [$time_local] "$request" $status rt=$request_time';
+    access_log /dev/stdout kvk_format if=$loggable;
+    error_log /dev/stderr warn;
+
+    # Security & performance headers
+    server_tokens off;
+    client_max_body_size 1m;
+    proxy_ssl_verify on;
+
+    server {
+        listen 80;
+        server_name _;
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 '{"status":"healthy","service":"kvk-gateway"}\n';
+            add_header Content-Type application/json;
+        }
+
+        # Transparante proxy naar KVK API
+        location /api/v1/ {
+            # Rate limiting
+            limit_req zone=kvk_limit nodelay;
+            limit_req_status 429;
+
+            # Direct proxy - volledig transparant
+            proxy_pass https://${KVK_API_HOST}/api/v1/;
+            proxy_ssl_server_name on;
+            proxy_ssl_verify off;
+
+            # Alleen Host header zetten (vereist voor HTTPS)
+            proxy_set_header Host ${KVK_API_HOST};
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+
+            # Timeouts
+            proxy_connect_timeout 30s;
+            proxy_read_timeout 30s;
+            proxy_send_timeout 30s;
+        }
+
+        # Catch-all
+        location / {
+            return 404 '{"error":"Not found. Use /api/v1/* endpoints"}\n';
+            add_header Content-Type application/json;
+        }
+    }
+}

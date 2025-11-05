@@ -1,0 +1,20 @@
+{
+  "vestigingsnummer": "000038976579",
+  "corAdresVolledig": "Postbus 1551 3800BN Amersfoort",
+  "corAdresPostcode": "3800BN",
+  "corAdresPostbusnummer": 1551,
+  "corAdresPlaats": "Amersfoort",
+  "corAdresLand": "Nederland",
+
+  "bzkAdresVolledig": "Lage Landstraat 7 5462GJ Veghel",
+  "bzkAdresStraatnaam": "Lage Landstraat",
+  "bzkAdresHuisnummer": 7,
+  "bzkAdresPostcode": "5462GJ",
+  "bzkAdresPlaats": "Veghel",
+  "bzkAdresLand": "Nederland",
+  "bzkAdresGpsLatitude": "51,61946",
+  "bzkAdresGpsLongitude": "5,52758",
+
+  "RegistratieDatumAanvangVestiging": "01-04-2008",
+  "RegistratieDatumEindeVestiging": "08-02-2021"
+}
