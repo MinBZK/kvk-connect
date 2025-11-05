@@ -1,3 +1,6 @@
+![Tests](https://github.com/MinBZK/kvk-connect/actions/workflows/ci.yml/badge.svg)
+[![PyPI](https://img.shields.io/pypi/v/kvk-connect)](https://pypi.org/project/kvk-connect/)
+
 # KvK-connect
 
 ## Inhoudsopgave
