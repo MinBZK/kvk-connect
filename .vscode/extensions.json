@@ -5,6 +5,7 @@
         "ms-azuretools.vscode-containers",
         "ms-python.vscode-python-envs",
         "sclu1034.justfile",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "hediet.vscode-drawio"
     ]
 }
