@@ -1,6 +1,6 @@
 [project]
 name = "kvk-connect"
-version = "0.1.6"
+version = "1.0.1"
 description = "Client + domain mapping for KVK API"
 readme = "README.md"
 requires-python = ">=3.13"
