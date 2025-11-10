@@ -17,7 +17,7 @@ def run():
     api_key = get_env("KVK_API_KEY_PROD", required=True) or "NO_KEY_FOUND"
     client = KVKApiClient(api_key)
     try:
-        basis = client.get_basisinformatie(args.kvk, geo_data=args.geo)
+        basis = client.get_basisprofiel(args.kvk, geo_data=args.geo)
         if not basis:
             print("No data")
             return

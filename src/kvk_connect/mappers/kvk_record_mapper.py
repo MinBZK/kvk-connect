@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from kvk_connect.models.api.basisprofiel_api import Adres, BasisProfielAPI, Hoofdvestiging, SBIActiviteit
 from kvk_connect.models.domain import BasisProfielDomain
-from kvk_connect.utils.tools import clean_and_pad, formatteer_datum, truncate_float
+from kvk_connect.utils.formatting import truncate_float
+from kvk_connect.utils.tools import clean_and_pad, formatteer_datum
 
 
 def _select_adres(adressen: list[Adres] | None) -> Adres | None:
@@ -13,7 +14,11 @@ def _select_adres(adressen: list[Adres] | None) -> Adres | None:
     if bezoek:
         return bezoek
     corr = next((a for a in adressen if a and a.type == "correspondentieadres"), None)
-    return corr or adressen[0]
+    if corr:
+        return corr
+
+    # Return first address if available
+    return adressen[0] if adressen else None
 
 
 def _format_straatnaam(adres: Adres) -> str:

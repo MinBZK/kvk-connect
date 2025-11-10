@@ -25,17 +25,22 @@ class BasisProfielWriter:
         self._session = self.Session()
         return self
 
-    def __exit__(self, exc_type, exc, tb):
-        """Commit changes if no exception, else rollback. Always close session."""
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Exit context manager, commit or rollback based on exception state."""
+        if self._session is None:
+            return
+
         try:
-            if exc is None:
-                self.flush()
+            if exc_type is None:
+                # No exception: commit the transaction
+                self._session.commit()
+                logger.debug("Session committed successfully")
             else:
-                if self._session:
-                    self._session.rollback()
+                # Exception occurred: rollback the transaction
+                self._session.rollback()
+                logger.warning("Session rolled back due to exception: %s", exc_type.__name__)
         finally:
-            if self._session:
-                self._session.close()
+            self._session.close()
             self._session = None
 
     def flush(self) -> None:  # noqa: D102

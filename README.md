@@ -193,6 +193,3 @@ De apps draaien met `depends_on` ordering:
 * Change historie bij kunnen houden.
 * HelmChart voor deploy
 * PowerBI rapport welke aangesloten kan worden en direct kan werken met de opgehaalde data.
-
-
-

@@ -1,4 +1,4 @@
-from .basisprofiel import BasisProfielDomain
+from kvk_connect.models.domain.basisprofiel import BasisProfielDomain
 from .kvkvestigingsnummersdomain import KvKVestigingsNummersDomain
 from .vestigingsadresdomain import VestigingsAdresDomain
 from .vestigingsadressendomain import VestigingsAdressenDomain

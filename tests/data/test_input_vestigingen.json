@@ -1,5 +1,5 @@
 {
-    "kvkNummer": "01070163",
+    "kvkNummer": "12345678",
     "aantalCommercieleVestigingen": 38,
     "aantalNietCommercieleVestigingen": 0,
     "totaalAantalVestigingen": 38,
@@ -14,7 +14,7 @@
             "links": [
                 {
                     "rel": "self",
-                    "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163/hoofdvestiging"
+                    "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/hoofdvestiging"
                 },
                 {
                     "rel": "vestigingsprofiel",
@@ -544,11 +544,11 @@
     "links": [
         {
             "rel": "self",
-            "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163/vestigingen"
+            "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/vestigingen"
         },
         {
             "rel": "basisprofiel",
-            "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163"
+            "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678"
         }
     ]
 }

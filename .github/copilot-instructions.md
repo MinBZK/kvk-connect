@@ -1,5 +1,8 @@
 # Copilot Instructions for KVKConnect Project
 
+## Project Repository
+- **GitHub**: https://github.com/MinBZK/kvk-connect
+
 ## Project opzet
 * Dit project is een kvkconnector naar KVK API. Documentatie staat hier: https://developers.kvk.nl/documentation
 * Doel is meerledig:

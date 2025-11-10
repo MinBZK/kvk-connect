@@ -1,7 +1,7 @@
 {
-  "kvkNummer": "64583341",
+  "kvkNummer": "12345678",
   "indNonMailing": "Ja",
-  "naam": "Raya Jameel",
+  "naam": "Blooming Tandartsen",
   "formeleRegistratiedatum": "20151119",
   "materieleRegistratie": {
     "datumAanvang": "20151119",
@@ -10,11 +10,11 @@
   "totaalWerkzamePersonen": 3,
   "handelsnamen": [
     {
-      "naam": "Raya Jameel",
+      "naam": "Blooming Monitor",
       "volgorde": 0
     },
     {
-      "naam": "Tandartspraktijk Jasmijnbloemen",
+      "naam": "Tandartspraktijk Blooming",
       "volgorde": 1
     }
   ],
@@ -28,17 +28,17 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+      "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678"
     },
     {
       "rel": "vestigingen",
-      "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/vestigingen"
+      "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/vestigingen"
     }
   ],
   "_embedded": {
     "hoofdvestiging": {
-      "vestigingsnummer": "000033396841",
-      "kvkNummer": "64583341",
+      "vestigingsnummer": "000033396000",
+      "kvkNummer": "12345678",
       "formeleRegistratiedatum": "20151119",
       "materieleRegistratie": {
         "datumAanvang": "20151119"
@@ -51,7 +51,7 @@
         {
           "type": "correspondentieadres",
           "indAfgeschermd": "Nee",
-          "volledigAdres": "Gijsbrecht van Amstelstraat 355 D 1215CP Hilversum",
+          "volledigAdres": "Gijsbrecht van Amstelstraat 999 D 1215CP Hilversum",
           "straatnaam": "Gijsbrecht van Amstelstraat",
           "huisnummer": 355,
           "huisletter": "D",
@@ -75,19 +75,19 @@
       "links": [
         {
           "rel": "self",
-          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/hoofdvestiging"
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/hoofdvestiging"
         },
         {
           "rel": "vestigingen",
-          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/vestigingen"
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/vestigingen"
         },
         {
           "rel": "basisprofiel",
-          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678"
         },
         {
           "rel": "vestigingsprofiel",
-          "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000033396841"
+          "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000033396000"
         }
       ]
     },
@@ -97,11 +97,11 @@
       "links": [
         {
           "rel": "self",
-          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341/eigenaar"
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678/eigenaar"
         },
         {
           "rel": "basisprofiel",
-          "href": "https://api.kvk.nl/api/v1/basisprofielen/64583341"
+          "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678"
         }
       ]
     }
