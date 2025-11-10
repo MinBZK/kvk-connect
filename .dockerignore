@@ -3,6 +3,8 @@
 .gitignore
 .gitattributes
 
+.github/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -43,6 +45,9 @@ logs/
 tmp/
 data/
 secrets/
+tests/
+docs/
+.vscode/
 
 # Env files (provided at runtime)
 .env
