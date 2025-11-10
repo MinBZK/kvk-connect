@@ -24,8 +24,8 @@ class TestBasisProfielDomain:
         domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
 
         assert domain.kvk_nummer == "12345678"
-        assert domain.naam == "Blooming Tandartsen"
-        assert domain.rechtsvorm == "Eenmanszaak"
+        assert domain.naam == "Test B.V."
+        assert domain.rechtsvorm == "Besloten Vennootschap"
 
     def test_basisprofiel_to_dict(
         self, mock_kvk_basisprofiel_response: dict
@@ -36,7 +36,7 @@ class TestBasisProfielDomain:
         result_dict = domain.to_dict()
 
         assert result_dict["kvk_nummer"] == "12345678"
-        assert result_dict["naam"] == "Blooming Tandartsen"
+        assert result_dict["naam"] == "Test B.V."
 
     def test_basisprofiel_with_null_fields(self) -> None:
         """Test handling optional null fields."""

@@ -1,20 +1,18 @@
 {
-  "vestigingsnummer": "000038976579",
-  "corAdresVolledig": "Postbus 1551 3800BN Amersfoort",
-  "corAdresPostcode": "3800BN",
-  "corAdresPostbusnummer": 1551,
-  "corAdresPlaats": "Amersfoort",
+  "vestigingsnummer": "000000000001",
+  "corAdresVolledig": "Postbus 100 1012AB Amsterdam",
+  "corAdresPostcode": "1012AB",
+  "corAdresPostbusnummer": 100,
+  "corAdresPlaats": "Amsterdam",
   "corAdresLand": "Nederland",
-
-  "bzkAdresVolledig": "Lage Landstraat 7 5462GJ Veghel",
-  "bzkAdresStraatnaam": "Lage Landstraat",
-  "bzkAdresHuisnummer": 7,
-  "bzkAdresPostcode": "5462GJ",
-  "bzkAdresPlaats": "Veghel",
+  "bzkAdresVolledig": "Straatnaam 1 1012AB Amsterdam",
+  "bzkAdresStraatnaam": "Straatnaam",
+  "bzkAdresHuisnummer": 1,
+  "bzkAdresPostcode": "1012AB",
+  "bzkAdresPlaats": "Amsterdam",
   "bzkAdresLand": "Nederland",
-  "bzkAdresGpsLatitude": "51,61946",
-  "bzkAdresGpsLongitude": "5,52758",
-
-  "RegistratieDatumAanvangVestiging": "01-04-2008",
-  "RegistratieDatumEindeVestiging": "08-02-2021"
+  "bzkAdresGpsLatitude": "52,36760",
+  "bzkAdresGpsLongitude": "4,90409",
+  "RegistratieDatumAanvangVestiging": "01-01-2020",
+  "RegistratieDatumEindeVestiging": "31-12-2025"
 }

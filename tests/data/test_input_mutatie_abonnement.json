@@ -1,20 +1,20 @@
 {
-  "klantId": "20ee5292-c23f-41fe-be14-b82c71d0f1a5",
+  "klantId": "12345678-1234-1234-1234-123456789012",
   "abonnementen": [
     {
-      "id": "1365acf9-0b63-3ed4-9e68-a8c37425080b",
+      "id": "87654321-4321-4321-4321-210987654321",
       "contract": {
         "id": "Data Services Contract"
       },
-      "startDatum": "2023-11-01T10:00:00Z",
+      "startDatum": "2020-01-01T00:00:00Z",
       "actief": true
     },
     {
-      "id": "b6ca725e-bafd-344c-abdf-31dcf70e2cc5",
+      "id": "11111111-2222-3333-4444-555555555555",
       "contract": {
         "id": "API Services Contract"
       },
-      "startDatum": "2023-11-01T10:00:00Z",
+      "startDatum": "2020-01-01T00:00:00Z",
       "actief": true
     }
   ]

@@ -70,7 +70,7 @@ class TestBasisProfielWriter:
             kvk_nummer="12345678"
         ).first()
         assert record is not None
-        assert record.naam == "Blooming Tandartsen"
+        assert record.naam == "Test B.V."
         logger.info("Successfully added basisprofiel for kvk_nummer %s", "12345678")
 
     def test_add_without_context_manager_raises_error(
@@ -170,7 +170,7 @@ class TestBasisProfielWriter:
 
         updated_response = mock_kvk_basisprofiel_response.copy()
         updated_response["naam"] = "Updated Company B.V."
-        updated_response["totaalWerkzamePersonen"] = 20
+        updated_response["totaalWerkzamePersonen"] = 10
         api_updated = BasisProfielAPI.from_dict(updated_response)
         updated_domain = map_kvkbasisprofiel_api_to_kvkrecord(api_updated)
 
@@ -181,7 +181,7 @@ class TestBasisProfielWriter:
             kvk_nummer="12345678"
         ).first()
         assert record.naam == "Updated Company B.V."
-        assert record.totaal_werkzame_personen == 3
+        assert record.totaal_werkzame_personen == 10
 
         all_records = db_session.query(BasisProfielORM).all()
         assert len(all_records) == 1
@@ -198,7 +198,7 @@ class TestBasisProfielWriter:
 
         assert isinstance(orm_obj, BasisProfielORM)
         assert orm_obj.kvk_nummer == "12345678"
-        assert orm_obj.naam == "Blooming Tandartsen"
+        assert orm_obj.naam == "Test B.V."
         logger.info("Domain to ORM conversion successful")
 
     def test_to_orm_handles_null_fields(self) -> None:

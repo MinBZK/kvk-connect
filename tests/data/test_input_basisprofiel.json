@@ -1,27 +1,27 @@
 {
   "kvkNummer": "12345678",
-  "indNonMailing": "Ja",
-  "naam": "Blooming Tandartsen",
-  "formeleRegistratiedatum": "20151119",
+  "indNonMailing": "Nee",
+  "naam": "Test B.V.",
+  "formeleRegistratiedatum": "20200101",
   "materieleRegistratie": {
-    "datumAanvang": "20151119",
-    "datumEinde": "20181019"
+    "datumAanvang": "20200101",
+    "datumEinde": "20251231"
   },
-  "totaalWerkzamePersonen": 3,
+  "totaalWerkzamePersonen": 10,
   "handelsnamen": [
     {
-      "naam": "Blooming Monitor",
+      "naam": "Test Company",
       "volgorde": 0
     },
     {
-      "naam": "Tandartspraktijk Blooming",
+      "naam": "Test Services",
       "volgorde": 1
     }
   ],
   "sbiActiviteiten": [
     {
-      "sbiCode": "86230",
-      "sbiOmschrijving": "Tandheelkundige zorg",
+      "sbiCode": "62010",
+      "sbiOmschrijving": "Computer programming activities",
       "indHoofdactiviteit": "Ja"
     }
   ],
@@ -37,40 +37,40 @@
   ],
   "_embedded": {
     "hoofdvestiging": {
-      "vestigingsnummer": "000033396000",
+      "vestigingsnummer": "000000000001",
       "kvkNummer": "12345678",
-      "formeleRegistratiedatum": "20151119",
+      "formeleRegistratiedatum": "20200101",
       "materieleRegistratie": {
-        "datumAanvang": "20151119"
+        "datumAanvang": "20200101"
       },
-      "eersteHandelsnaam": "Raya Jameel",
+      "eersteHandelsnaam": "Test Company",
       "indHoofdvestiging": "Ja",
       "indCommercieleVestiging": "Ja",
-      "totaalWerkzamePersonen": 3,
+      "totaalWerkzamePersonen": 10,
       "adressen": [
         {
           "type": "correspondentieadres",
           "indAfgeschermd": "Nee",
-          "volledigAdres": "Gijsbrecht van Amstelstraat 999 D 1215CP Hilversum",
-          "straatnaam": "Gijsbrecht van Amstelstraat",
-          "huisnummer": 355,
-          "huisletter": "D",
-          "postcode": "1215CP",
-          "plaats": "Hilversum",
+          "volledigAdres": "Straatnaam 1 1012AB Amsterdam",
+          "straatnaam": "Straatnaam",
+          "huisnummer": 1,
+          "huisletter": "",
+          "postcode": "1012AB",
+          "plaats": "Amsterdam",
           "land": "Nederland",
           "geoData": {
-            "addresseerbaarObjectId": "0402010001619862",
-            "nummerAanduidingId": "0402200001619863",
-            "gpsLatitude": 52.21725800248481,
-            "gpsLongitude": 5.15786484845352,
-            "rijksdriehoekX": 139327.053,
-            "rijksdriehoekY": 469932.226,
+            "addresseerbaarObjectId": "0402010000000001",
+            "nummerAanduidingId": "0402200000000001",
+            "gpsLatitude": 52.3676123,
+            "gpsLongitude": 4.9041123,
+            "rijksdriehoekX": 121325.0,
+            "rijksdriehoekY": 485720.0,
             "rijksdriehoekZ": 0.0
           }
         }
       ],
       "websites": [
-        "https://www.tpjasmijnbloemen.nl"
+        "https://example.com"
       ],
       "links": [
         {
@@ -87,13 +87,13 @@
         },
         {
           "rel": "vestigingsprofiel",
-          "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000033396000"
+          "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000000000001"
         }
       ]
     },
     "eigenaar": {
-      "rechtsvorm": "Eenmanszaak",
-      "uitgebreideRechtsvorm": "Eenmanszaak",
+      "rechtsvorm": "Besloten Vennootschap",
+      "uitgebreideRechtsvorm": "Besloten Vennootschap met beperkte aansprakelijkheid",
       "links": [
         {
           "rel": "self",

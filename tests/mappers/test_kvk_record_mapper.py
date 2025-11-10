@@ -25,7 +25,7 @@ class TestKvkRecordMapper:
 
         assert isinstance(domain, BasisProfielDomain)
         assert domain.kvk_nummer == "12345678"
-        assert domain.naam == "Blooming Tandartsen"
+        assert domain.naam == "Test B.V."
         logger.info("Successfully mapped basisprofiel API response to domain")
 
     def test_map_basisprofiel_with_null_optional_fields(self) -> None:

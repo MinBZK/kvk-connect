@@ -34,7 +34,7 @@ class TestKVKApiClient:
             result = client.get_basisprofiel("12345678")
 
             assert result.kvk_nummer == "12345678"
-            assert result.naam == "Blooming Tandartsen"
+            assert result.naam == "Test B.V."
             mock_get.assert_called_once()
 
 
@@ -52,7 +52,7 @@ class TestKVKApiClient:
 
             result = client.get_vestigingsprofiel("000000000001")
 
-            assert result.vestigingsnummer == "000038976579"
+            assert result.vestigingsnummer == "000000000001"
             mock_get.assert_called_once()
 
     def test_get_vestigingen_success(
@@ -70,7 +70,7 @@ class TestKVKApiClient:
             result = client.get_vestigingen("12345678")
 
             assert result.vestigingen is not None
-            assert len(result.vestigingen) == 38
+            assert len(result.vestigingen) == 5
             mock_get.assert_called_once()
 
     def test_session_lazy_loading(self) -> None:
