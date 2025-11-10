@@ -27,7 +27,7 @@ class KVKRecordService:
             BasisProfielDomain if found, None otherwise.
         """
         kvk_nummer = clean_and_pad(kvk_nummer)
-        bp_api = self.client.get_basisinformatie(kvk_nummer)
+        bp_api = self.client.get_basisprofiel(kvk_nummer)
 
         if bp_api is None:
             logger.info("No basisprofiel found for KVK number %s", kvk_nummer)

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from kvk_connect.models.api.vestigingsprofiel_api import VestigingsProfielAPI
 from kvk_connect.models.domain.vestigingsprofiel_domain import VestigingsProfielDomain
-from kvk_connect.utils.tools import formatteer_datum, truncate_float
+from kvk_connect.utils.formatting import truncate_float
+from kvk_connect.utils.tools import formatteer_datum
 
 
 def map_vestigingsprofiel_api_to_vestigingsprofiel_domain(api_model: VestigingsProfielAPI) -> VestigingsProfielDomain:

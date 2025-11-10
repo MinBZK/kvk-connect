@@ -1,32 +1,71 @@
 {
   "pagina": 1,
   "aantal": 100,
-  "totaal": 15273,
+  "totaal": 15285,
   "totaalPaginas": 153,
   "signalen": [
     {
-      "id": "1fd1f03b-c38a-3229-a680-bf12bc03da18",
-      "timestamp": "2025-10-08T22:04:33.824454Z",
-      "kvknummer": "85802395",
+      "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "timestamp": "2020-01-01T00:00:00Z",
+      "kvknummer": "12345678",
       "signaalType": "SignaalGewijzigdeInschrijving"
     },
     {
-      "id": "0ec9b6fb-3f3e-3689-be42-db306fa106ec",
-      "timestamp": "2025-10-08T22:30:04.59527Z",
-      "kvknummer": "83397787",
+      "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "timestamp": "2020-01-01T00:01:00Z",
+      "kvknummer": "87654321",
       "signaalType": "SignaalGewijzigdeInschrijving"
     },
     {
-      "id": "0483b398-24b8-37d8-b086-a4c6503ea9a5",
-      "timestamp": "2025-10-08T22:30:04.829821Z",
-      "kvknummer": "83397787",
+      "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "timestamp": "2020-01-01T00:02:00Z",
+      "kvknummer": "87654321",
       "signaalType": "SignaalGewijzigdeVestiging",
-      "vestigingsnummer": "000049565672"
+      "vestigingsnummer": "000000000001"
     },
     {
-      "id": "8906f78f-abab-35e5-a343-aa469a2d8846",
-      "timestamp": "2025-10-08T22:48:04.267067Z",
-      "kvknummer": "27333546"
+      "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+      "timestamp": "2020-01-01T00:03:00Z",
+      "kvknummer": "11111111",
+      "signaalType": "SignaalGewijzigdeInschrijving"
+    },
+    {
+      "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+      "timestamp": "2020-01-01T00:04:00Z",
+      "kvknummer": "22222222",
+      "signaalType": "SignaalGewijzigdeVestiging",
+      "vestigingsnummer": "000000000002"
+    },
+    {
+      "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+      "timestamp": "2020-01-01T00:05:00Z",
+      "kvknummer": "33333333",
+      "signaalType": "SignaalGewijzigdeInschrijving"
+    },
+    {
+      "id": "00000001-0000-0000-0000-000000000001",
+      "timestamp": "2020-01-01T00:06:00Z",
+      "kvknummer": "44444444",
+      "signaalType": "SignaalGewijzigdeInschrijving"
+    },
+    {
+      "id": "00000002-0000-0000-0000-000000000002",
+      "timestamp": "2020-01-01T00:07:00Z",
+      "kvknummer": "55555555",
+      "signaalType": "SignaalGewijzigdeVestiging",
+      "vestigingsnummer": "000000000003"
+    },
+    {
+      "id": "00000003-0000-0000-0000-000000000003",
+      "timestamp": "2020-01-01T00:08:00Z",
+      "kvknummer": "66666666",
+      "signaalType": "SignaalGewijzigdeInschrijving"
+    },
+    {
+      "id": "00000004-0000-0000-0000-000000000004",
+      "timestamp": "2020-01-01T00:09:00Z",
+      "kvknummer": "77777777",
+      "signaalType": "SignaalGewijzigdeInschrijving"
     }
   ]
 }

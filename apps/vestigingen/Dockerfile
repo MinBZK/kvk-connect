@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     && echo "deb [arch=amd64] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy entire source first
@@ -32,4 +33,4 @@ ENV PATH=/app/.venv/bin:$PATH \
     PYTHONPATH=/app/src
 
 # Use virtual environment Python
-CMD ["uv", "run", "python", "apps/vestigingen/main.py", "--daemon", "--interval", "30"]
+CMD ["uv", "run", "--no-sync", "python", "apps/vestigingen/main.py", "--daemon", "--interval", "30"]

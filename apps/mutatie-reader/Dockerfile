@@ -16,20 +16,21 @@ RUN apt-get update && apt-get install -y \
     && echo "deb [arch=amd64] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy entire source first
+# Copy dependency files FIRST
+COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
-COPY README.md pyproject.toml uv.lock ./
 
-# Install dependencies with uv
+# Install only production dependencies
 RUN uv sync --frozen --no-dev
 
-# Copy app code
+# Copy source code
 COPY apps/mutatie-reader ./apps/mutatie-reader
 
 ENV PATH=/app/.venv/bin:$PATH \
     PYTHONPATH=/app/src
 
-# Use virtual environment Python
-CMD ["uv", "run", "python", "apps/mutatie-reader/main.py", "--auto", "--daemon", "--interval", "60"]
+# Use virtual environment Python to run the mutatie-reader
+CMD ["uv", "run", "--no-sync", "python", "apps/mutatie-reader/main.py", "--auto", "--daemon", "--interval", "60"]

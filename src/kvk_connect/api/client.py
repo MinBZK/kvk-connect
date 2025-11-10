@@ -95,7 +95,7 @@ class KVKApiClient:
         return None if data is None else MutatiesAPI.from_dict(data)
 
     @global_rate_limit()
-    def get_basisinformatie_raw(self, kvk_nummer: str, geo_data: bool = True) -> dict | None:
+    def get_basisprofiel_raw(self, kvk_nummer: str, geo_data: bool = True) -> dict | None:
         """Get raw basisinformatie data from KVK API.
 
         Args:
@@ -105,22 +105,19 @@ class KVKApiClient:
             Return: Originele JSON of None bij fout.
         """
         url = endpoints.basisprofiel(kvk_nummer)
-        logger.debug("KVK API url: %s", url)
         try:
             resp = self.session.get(url, params={"geoData": geo_data}, timeout=self.timeout)
             resp.raise_for_status()
-            logger.debug(
-                "KVK Basisinformatie Raw response for kvk nummer %s: %s, with url: %s", kvk_nummer, resp.json(), url
-            )
+            logger.debug("KVK Basisinformatie Raw response for kvk nummer %s: %s", kvk_nummer, resp.json())
             return resp.json()
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", kvk_nummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
             return None
 
-    def get_basisinformatie(self, kvk_nummer: str, geo_data: bool = True) -> BasisProfielAPI | None:
+    def get_basisprofiel(self, kvk_nummer: str, geo_data: bool = True) -> BasisProfielAPI | None:
         """Get basisinformatie from KVK API in domein model."""
-        data = self.get_basisinformatie_raw(kvk_nummer, geo_data)
+        data = self.get_basisprofiel_raw(kvk_nummer, geo_data)
         return None if data is None else BasisProfielAPI.from_dict(data)
 
     @global_rate_limit()

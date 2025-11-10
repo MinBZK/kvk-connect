@@ -56,37 +56,62 @@ def parse_kvk_datum(datum_str: str | None) -> date | None:
     return None
 
 
-def truncate_float(value: float | None, digits: int = 5) -> str:
-    """Truncate a float to a given number of digits after the decimal point and return as string.
-
-    If value is None, return empty string.
-    """
-    if value is None or value == 0.0:
-        return ""
-    factor = 10**digits
-    truncated = int(value * factor) / factor
-    # Format with fixed number of digits en gebruik komma als decimaalteken
-    return f"{truncated:.{digits}f}".replace(".", ",")
-
-
-def clean_and_pad(s, fill=8):
+def clean_and_pad(s: str, fill=8) -> str:
     """Strip non-digit characters from start/end and pad to given length with leading zeros."""
 
+    if not s or not isinstance(s, str):
+        raise ValueError(f"KVK number must be non-empty string, got: {type(s).__name__}")
+
     cleaned = re.sub(r"[^\d]", "", s)
-    # Pad to 8 digits
+    if not cleaned:
+        raise ValueError(f"No digits found in KVK number: {s}")
+
     return cleaned.zfill(fill)
 
 
-def formatteer_datum(datum_str):
-    """Formatteer een datum string van YYYYMMDD naar DD-MM-YYYY. Retourneer None bij "None"."""
+def formatteer_datum(datum_str: str | None) -> str | None:
+    """Format a date string from YYYYMMDD to DD-MM-YYYY.
 
-    if datum_str != "None":
-        try:
-            return datetime.strptime(datum_str, "%Y%m%d").strftime("%d-%m-%Y")
-        except ValueError:
-            return datum_str
-    else:
+    Handles edge cases:
+    - Returns None for empty/None input or literal 'None' string
+    - Returns None for all-zero date (00000000)
+    - Replaces 00 in day/month positions with 01
+    - Returns original input for invalid dates
+
+    Args:
+        datum_str: Date string in YYYYMMDD format or None.
+
+    Returns:
+        Formatted string (DD-MM-YYYY) or original input if invalid.
+    """
+    if datum_str is None or datum_str == "" or datum_str == "None":
         return None
+
+    # Check for all zeros (invalid date)
+    if datum_str == "00000000":
+        return None
+
+    if len(datum_str) != 8 or not datum_str.isdigit():
+        return datum_str
+
+    try:
+        year = datum_str[:4]
+        month = datum_str[4:6]
+        day = datum_str[6:8]
+
+        # Replace 00 with 01 for month and day
+        if month == "00":
+            month = "01"
+        if day == "00":
+            day = "01"
+
+        # Reconstruct and validate the date
+        normalized_date_str = f"{year}{month}{day}"
+        parsed_date = datetime.strptime(normalized_date_str, "%Y%m%d").date()
+        return parsed_date.strftime("%d-%m-%Y")
+    except ValueError:
+        logger.warning("Invalid date value: %s", datum_str)
+        return datum_str
 
 
 def print_response(_response):

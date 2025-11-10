@@ -1,34 +1,38 @@
 {
-    "vestigingsnummer": "000038976579",
-    "kvkNummer": "01070163",
-    "rsin": "803378580",
-    "indNonMailing": "Ja",
-    "formeleRegistratiedatum": "20180126",
+    "vestigingsnummer": "000000000001",
+    "kvkNummer": "12345678",
+    "rsin": "123456789",
+    "indNonMailing": "Nee",
+    "formeleRegistratiedatum": "20200101",
     "materieleRegistratie": {
-        "datumAanvang": "20080401",
-        "datumEinde": "20210208"
+        "datumAanvang": "20200101",
+        "datumEinde": "20251231"
     },
-    "statutaireNaam": "FrieslandCampina Nederland B.V.",
-    "eersteHandelsnaam": "FrieslandCampina Nederland B.V.",
-    "indHoofdvestiging": "Nee",
+    "statutaireNaam": "Test B.V.",
+    "eersteHandelsnaam": "Test Company",
+    "indHoofdvestiging": "Ja",
     "indCommercieleVestiging": "Ja",
-    "voltijdWerkzamePersonen": 0,
-    "totaalWerkzamePersonen": 0,
-    "deeltijdWerkzamePersonen": 0,
+    "voltijdWerkzamePersonen": 5,
+    "totaalWerkzamePersonen": 10,
+    "deeltijdWerkzamePersonen": 5,
     "handelsnamen": [
         {
-            "naam": "FrieslandCampina Nederland B.V.",
+            "naam": "Test Company",
             "volgorde": 0
+        },
+        {
+            "naam": "Test Services",
+            "volgorde": 1
         }
     ],
     "adressen": [
         {
             "type": "correspondentieadres",
             "indAfgeschermd": "Nee",
-            "volledigAdres": "Postbus 1551 3800BN Amersfoort",
-            "postcode": "3800BN",
-            "postbusnummer": 1551,
-            "plaats": "Amersfoort",
+            "volledigAdres": "Postbus 100 1012AB Amsterdam",
+            "postcode": "1012AB",
+            "postbusnummer": 100,
+            "plaats": "Amsterdam",
             "land": "Nederland",
             "geoData": {
                 "addresseerbaarObjectId": null,
@@ -43,51 +47,51 @@
         {
             "type": "bezoekadres",
             "indAfgeschermd": "Nee",
-            "volledigAdres": "Lage Landstraat 7 5462GJ Veghel",
-            "straatnaam": "Lage Landstraat",
-            "huisnummer": 7,
-            "postcode": "5462GJ",
-            "plaats": "Veghel",
+            "volledigAdres": "Straatnaam 1 1012AB Amsterdam",
+            "straatnaam": "Straatnaam",
+            "huisnummer": 1,
+            "postcode": "1012AB",
+            "plaats": "Amsterdam",
             "land": "Nederland",
             "geoData": {
-                "addresseerbaarObjectId": "0860010000004488",
-                "nummerAanduidingId": "0860200000003142",
-                "gpsLatitude": 51.61946982107926,
-                "gpsLongitude": 5.527585811196241,
-                "rijksdriehoekX": 164722.0,
-                "rijksdriehoekY": 403409.0,
+                "addresseerbaarObjectId": "0402010000000001",
+                "nummerAanduidingId": "0402200000000001",
+                "gpsLatitude": 52.3676,
+                "gpsLongitude": 4.9041,
+                "rijksdriehoekX": 121325.0,
+                "rijksdriehoekY": 485720.0,
                 "rijksdriehoekZ": 0.0
             }
         }
     ],
     "websites": [
-        "www.frieslandcampina.com"
+        "https://example.com"
     ],
     "sbiActiviteiten": [
         {
-            "sbiCode": "77400",
-            "sbiOmschrijving": "Lease van intellectuele eigendom en vergelijkbare producten, met uitzondering van werken onder auteursrecht",
+            "sbiCode": "62010",
+            "sbiOmschrijving": "Computer programming activities",
             "indHoofdactiviteit": "Ja"
         },
         {
-            "sbiCode": "46331",
-            "sbiOmschrijving": "Groothandel in zuivelproducten en spijsoli\u00ebn en -vetten",
+            "sbiCode": "62020",
+            "sbiOmschrijving": "Information technology consultancy activities",
             "indHoofdactiviteit": "Nee"
         },
         {
-            "sbiCode": "78202",
-            "sbiOmschrijving": "Activiteiten van uitleenbureaus",
+            "sbiCode": "62090",
+            "sbiOmschrijving": "Other information technology service activities",
             "indHoofdactiviteit": "Nee"
         }
     ],
     "links": [
         {
             "rel": "self",
-            "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000038976579"
+            "href": "https://api.kvk.nl/api/v1/vestigingsprofielen/000000000001"
         },
         {
             "rel": "basisprofiel",
-            "href": "https://api.kvk.nl/api/v1/basisprofielen/01070163"
+            "href": "https://api.kvk.nl/api/v1/basisprofielen/12345678"
         }
     ]
 }
