@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Index, String
+from sqlalchemy import DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from kvk_connect.models.orm.base import Base
@@ -25,7 +25,14 @@ class VestigingenORM(Base):
     SENTINEL_VESTIGINGSNUMMER = "000000000000"
 
     # Composite primary key
-    kvk_nummer: Mapped[str] = mapped_column("kvkNummer", String(8), primary_key=True)
+    kvk_nummer: Mapped[str] = mapped_column(
+        "kvkNummer",
+        String(8),
+        ForeignKey(
+            "basisprofielen.kvkNummer", ondelete="CASCADE"
+        ),  # only allow kvknummers that exist in basisprofielen
+        primary_key=True,
+    )
     vestigingsnummer: Mapped[str] = mapped_column("vestigingsnummer", String(12), primary_key=True)
 
     # Timestamp fields with defaults

@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from kvk_connect.models.orm.kvkvestigingen_orm import VestigingenORM
 from kvk_connect.models.orm.signaal_orm import SignaalORM
+from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 from kvk_connect.models.orm.vestigingsprofiel_orm import VestigingsProfielORM
 
 

@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from sqlalchemy.orm import Session, sessionmaker
 
 from kvk_connect.models.domain import KvKVestigingsNummersDomain
-from kvk_connect.models.orm.kvkvestigingen_orm import VestigingenORM
+from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
 logger = logging.getLogger(__name__)
 
