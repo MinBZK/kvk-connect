@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_session_with_retries(
-    retries: int = 3, backoff_factor: float = 1.0, status_forcelist: tuple[int, ...] = (429, 500, 502, 503, 504)
+    retries: int = 5, backoff_factor: float = 2.5, status_forcelist: tuple[int, ...] = (429, 500, 502, 503, 504)
 ) -> Session:
     """Maakt een requests.Session met automatische retry-logica."""
     session = Session()
@@ -22,8 +22,6 @@ def create_session_with_retries(
     session.mount("http://", adapter)
     session.mount("https://", adapter)
 
-    # logging.getLogger("urllib3.util.retry").setLevel(logging.DEBUG)
-    # logging.getLogger("urllib3.connectionpool").setLevel(logging.DEBUG)
     logger.debug(
         "Retry strategy configured: total=%d, backoff_factor=%f, status_forcelist=%s",
         retries,
