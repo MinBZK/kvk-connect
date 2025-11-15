@@ -41,6 +41,13 @@ def db_engine(test_database_url: str):
         echo=False,
     )
 
+        # Enable foreign keys for SQLite.
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_conn, connection_record):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
     # Create all tables
     Base.metadata.create_all(engine)
 

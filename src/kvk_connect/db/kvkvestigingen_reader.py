@@ -3,7 +3,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
-from kvk_connect.models.orm.kvkvestigingen_orm import VestigingenORM
+from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
 
 class KvKVestigingenReader:
