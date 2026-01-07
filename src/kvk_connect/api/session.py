@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_session_with_retries(
-    retries: int = 5, backoff_factor: float = 2.5, status_forcelist: tuple[int, ...] = (429, 500, 502, 503, 504)
+    retries: int = 10, backoff_factor: float = 5, status_forcelist: tuple[int, ...] = (429, 500, 502, 503, 504)
 ) -> Session:
     """Maakt een requests.Session met automatische retry-logica."""
     session = Session()

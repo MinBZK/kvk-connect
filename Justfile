@@ -12,6 +12,11 @@ set dotenv-load
 @_:
     just --list
 
+#Run
+[group('run')]
+basisprofiel *args:
+    uv run python apps/basisprofiel/main.py {{ args }}
+
 
 # Run tests
 [group('qa')]
@@ -103,8 +108,8 @@ docker-build env='local':
     docker compose -f docker-compose.{{env}}.yaml build
 
 [group('docker')]
-docker-up env='local':
-    docker compose -f docker-compose.{{env}}.yaml up -d
+docker-up env='local' *args:
+    docker compose -f docker-compose.{{env}}.yaml up -d {{ args }}
 
 # Docker compose down
 [group('docker')]

@@ -12,8 +12,8 @@ Vanuit project root:
 ```
 
 
-### Ophalen van een single signaalid
-
+# Ophalen van een single signaalid
 ```
- python -m apps.mutatie-reader.main --signaalid 604afefc-b8c1-3270-85f9-486a2ec807eb
+ uv run python -m apps.mutatie-reader.main --signaalid a131db31-c567-3894-a96a-84dc8d96a5f5
+ 
 ```
