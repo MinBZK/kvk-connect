@@ -10,7 +10,7 @@ class KvKVestigingenReader:
     def __init__(self, engine: Engine):
         self.engine = engine
 
-    def get_missing_kvk_nummers(self) -> list[str]:
+    def get_missing_kvk_nummers(self, limit: int = 1000) -> list[str]:
         """Retourneert unieke KVK nummers die wel in basisprofielen staan maar nog niet in kvkvestigingen."""
         with Session(self.engine) as session:
             stmt = (
@@ -19,12 +19,13 @@ class KvKVestigingenReader:
                 .outerjoin(VestigingenORM, BasisProfielORM.kvk_nummer == VestigingenORM.kvk_nummer)
                 .where(VestigingenORM.kvk_nummer.is_(None))
                 .distinct()
+                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt).scalars().all()
             return list(result)
 
-    def get_outdated_vestigingen(self) -> list[str]:
+    def get_outdated_vestigingen(self, limit: int = 1000) -> list[str]:
         """Geen een lijst van unieke kvknummers terug waarvan de vestigingen verouderd zijn.
 
         Dit is gedefinieerd als basisprofielen die nieuwer zijn dan de laatste update van de vestigingen.
@@ -35,6 +36,7 @@ class KvKVestigingenReader:
                 .join(VestigingenORM, BasisProfielORM.kvk_nummer == VestigingenORM.kvk_nummer)
                 .where(BasisProfielORM.last_updated > VestigingenORM.last_updated)
                 .distinct()
+                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt).scalars().all()

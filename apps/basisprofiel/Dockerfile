@@ -34,4 +34,4 @@ ENV PATH=/app/.venv/bin:$PATH \
     PYTHONPATH=/app/src
 
 # Use virtual environment Python
-CMD ["uv", "run", "python", "apps/basisprofiel/main.py", "--daemon", "--interval", "10"]
+CMD ["uv", "run", "--no-sync","python", "apps/basisprofiel/main.py", "--daemon", "--interval", "10"]

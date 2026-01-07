@@ -10,7 +10,7 @@ class VestigingsProfielReader:
     def __init__(self, engine):
         self.engine = engine
 
-    def get_vestigingen_zonder_vestigingsprofielen(self) -> list[str]:
+    def get_vestigingen_zonder_vestigingsprofielen(self, limit: int = 1000) -> list[str]:
         """Haalt alle vestigingsnummers op die wel in kvk_vestigingen staan maar nog niet in vestigingsprofielen.
 
         Returns:
@@ -25,12 +25,13 @@ class VestigingsProfielReader:
                 .where(VestigingsProfielORM.vestigingsnummer.is_(None))
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
                 .distinct()
+                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt)
             return [row[0] for row in result.fetchall()]
 
-    def get_outdated_vestigingen(self) -> list[str]:
+    def get_outdated_vestigingen(self, limit: int = 1000) -> list[str]:
         """Return lijst van vestigingsnummers met vestiging nieuwer dan de lastupdated van het vestigingenprofiel."""
 
         with Session(self.engine) as session:
@@ -40,12 +41,13 @@ class VestigingsProfielReader:
                 .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
                 .distinct()
+                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt).scalars().all()
             return list(result)
 
-    def get_outdated_vestigingen_signaal(self) -> list[str]:
+    def get_outdated_vestigingen_signaal(self, limit: int = 1000) -> list[str]:
         """Return lijst van vestigingsnummers met signaal nieuwer is dan de last_updated van het vestigingenprofiel.
 
         Returns:
@@ -60,6 +62,7 @@ class VestigingsProfielReader:
                     SignaalORM.vestigingsnummer.is_not(None),  # Alleen vestigingsprofielen, geen basisprofielen
                 )
                 .distinct()
+                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt).scalars().all()
