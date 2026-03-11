@@ -7,6 +7,8 @@ import logging
 import os
 import time
 from datetime import datetime, timedelta
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as pkg_version
 
 from sqlalchemy import create_engine
 
@@ -225,8 +227,13 @@ def main() -> None:
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging_config.configure(level=log_level)
 
+    try:
+        app_version = pkg_version("kvk-connect")
+    except PackageNotFoundError:
+        app_version = "onbekend"
+    logger.info("kvk-connect basisprofiel v%s gestart", app_version)
+
     kvk_client = KVKApiClient(api_key=config.API_KEY)
-    print(f"Using KVK API endpoint: {config.SQLALCHEMY_DATABASE_URI}")
     engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, connect_args={"timeout": 30})
 
     ensure_database_initialized(engine, Base)
