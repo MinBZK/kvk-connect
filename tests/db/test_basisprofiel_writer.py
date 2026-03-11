@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import Engine
@@ -310,3 +310,100 @@ class TestBasisProfielWriter:
             writer.add(domain)
             assert writer._count == 2
             logger.info("Counter properly incremented to %d", writer._count)
+
+    # --- mark_niet_leverbaar ---
+
+    def test_mark_niet_leverbaar_writes_tombstone(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test tombstone record is written with correct code."""
+        with writer:
+            writer.mark_niet_leverbaar("12345678", "IPD0005")
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record is not None
+        assert record.niet_leverbaar_code == "IPD0005"
+
+    def test_mark_niet_leverbaar_has_no_retry_after(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test tombstone does not set retry_after."""
+        with writer:
+            writer.mark_niet_leverbaar("12345678", "IPD0005")
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record.retry_after is None
+
+    def test_mark_niet_leverbaar_sets_last_updated(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test tombstone has last_updated timestamp."""
+        with writer:
+            writer.mark_niet_leverbaar("12345678", "IPD0005")
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record.last_updated is not None
+
+    def test_mark_niet_leverbaar_without_context_raises(
+        self,
+        writer: BasisProfielWriter,
+    ) -> None:
+        """Test mark_niet_leverbaar without context manager raises RuntimeError."""
+        with pytest.raises(RuntimeError, match="Session not initialized"):
+            writer.mark_niet_leverbaar("12345678", "IPD0005")
+
+    # --- mark_retry_after ---
+
+    def test_mark_retry_after_writes_record(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test retry_after record is written."""
+        with writer:
+            writer.mark_retry_after("12345678", timedelta(hours=24))
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record is not None
+        assert record.retry_after is not None
+
+    def test_mark_retry_after_has_no_niet_leverbaar_code(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test retry record does not set niet_leverbaar_code."""
+        with writer:
+            writer.mark_retry_after("12345678", timedelta(hours=24))
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record.niet_leverbaar_code is None
+
+    def test_mark_retry_after_timestamp_is_in_future(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+    ) -> None:
+        """Test retry_after timestamp is set in the future."""
+        before = datetime.now(UTC).replace(tzinfo=None)
+
+        with writer:
+            writer.mark_retry_after("12345678", timedelta(hours=24))
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        # retry_after should be at least 1 hour from now (we set 24h)
+        assert record.retry_after > before + timedelta(hours=1)
+
+    def test_mark_retry_after_without_context_raises(
+        self,
+        writer: BasisProfielWriter,
+    ) -> None:
+        """Test mark_retry_after without context manager raises RuntimeError."""
+        with pytest.raises(RuntimeError, match="Session not initialized"):
+            writer.mark_retry_after("12345678", timedelta(hours=24))

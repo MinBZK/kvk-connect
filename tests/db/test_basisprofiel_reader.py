@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import Engine
@@ -252,3 +252,139 @@ class TestBasisProfielReader:
         outdated = reader.get_outdated_kvk_nummers()
         assert kvk in outdated
         logger.info("Multiple signals handled correctly")
+
+    # --- tombstone (niet_leverbaar_code) filtering ---
+
+    def test_get_missing_excludes_tombstone(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Tombstone record is never returned as missing."""
+        signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            niet_leverbaar_code="IPD0005",
+            last_updated=datetime.now(UTC),
+        )
+        db_session.add_all([signaal, profile])
+        db_session.commit()
+
+        missing = reader.get_missing_kvk_nummers(limit=10)
+        assert "12345678" not in missing
+
+    def test_get_missing_count_excludes_tombstone(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Tombstone record is not counted as missing."""
+        signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            niet_leverbaar_code="IPD0005",
+            last_updated=datetime.now(UTC),
+        )
+        db_session.add_all([signaal, profile])
+        db_session.commit()
+
+        count = reader.get_missing_kvk_nummers_count()
+        assert count == 0
+
+    def test_get_outdated_excludes_tombstone(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Tombstone record is not returned as outdated."""
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            niet_leverbaar_code="IPD0005",
+            last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
+        )
+        signaal = SignaalORM(
+            id="s1",
+            kvknummer="12345678",
+            timestamp=datetime(2024, 2, 1, 10, 0, 0, tzinfo=UTC),
+            signaal_type="UPDATE",
+            vestigingsnummer=None,
+        )
+        db_session.add_all([profile, signaal])
+        db_session.commit()
+
+        outdated = reader.get_outdated_kvk_nummers()
+        assert "12345678" not in outdated
+
+    # --- retry_after filtering ---
+
+    def test_get_missing_excludes_active_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Record with unexpired retry_after is not returned as missing."""
+        signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            retry_after=datetime.now(UTC) + timedelta(hours=24),
+            last_updated=datetime.now(UTC),
+        )
+        db_session.add_all([signaal, profile])
+        db_session.commit()
+
+        missing = reader.get_missing_kvk_nummers(limit=10)
+        assert "12345678" not in missing
+
+    def test_get_missing_includes_expired_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Record with expired retry_after reappears as missing."""
+        signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            retry_after=datetime.now(UTC) - timedelta(hours=1),
+            last_updated=datetime.now(UTC),
+        )
+        db_session.add_all([signaal, profile])
+        db_session.commit()
+
+        missing = reader.get_missing_kvk_nummers(limit=10)
+        assert "12345678" in missing
+
+    def test_get_missing_count_includes_expired_retry_after(
+        self, db_session: Session, reader: BasisProfielReader
+    ) -> None:
+        """Expired retry_after is counted as missing."""
+        signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            retry_after=datetime.now(UTC) - timedelta(hours=1),
+            last_updated=datetime.now(UTC),
+        )
+        db_session.add_all([signaal, profile])
+        db_session.commit()
+
+        count = reader.get_missing_kvk_nummers_count()
+        assert count == 1
+
+    def test_get_outdated_excludes_active_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Record with unexpired retry_after is not returned as outdated."""
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            retry_after=datetime.now(UTC) + timedelta(hours=24),
+            last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
+        )
+        signaal = SignaalORM(
+            id="s1",
+            kvknummer="12345678",
+            timestamp=datetime(2024, 2, 1, 10, 0, 0, tzinfo=UTC),
+            signaal_type="UPDATE",
+            vestigingsnummer=None,
+        )
+        db_session.add_all([profile, signaal])
+        db_session.commit()
+
+        outdated = reader.get_outdated_kvk_nummers()
+        assert "12345678" not in outdated
+
+    def test_get_outdated_includes_expired_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Record with expired retry_after is returned as outdated when signal is newer."""
+        profile = BasisProfielORM(
+            kvk_nummer="12345678",
+            retry_after=datetime.now(UTC) - timedelta(hours=1),
+            last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
+        )
+        signaal = SignaalORM(
+            id="s1",
+            kvknummer="12345678",
+            timestamp=datetime(2024, 2, 1, 10, 0, 0, tzinfo=UTC),
+            signaal_type="UPDATE",
+            vestigingsnummer=None,
+        )
+        db_session.add_all([profile, signaal])
+        db_session.commit()
+
+        outdated = reader.get_outdated_kvk_nummers()
+        assert "12345678" in outdated
