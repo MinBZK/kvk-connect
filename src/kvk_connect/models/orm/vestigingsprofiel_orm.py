@@ -52,6 +52,14 @@ class VestigingsProfielORM(Base):
         index=True,  # Index voor last_updated filtering
     )
 
+    # Foutafhandeling
+    niet_leverbaar_code: Mapped[str | None] = mapped_column(
+        "niet_leverbaar_code", String(16), nullable=True, default=None
+    )
+    retry_after: Mapped[datetime | None] = mapped_column(
+        "retry_after", DateTime(timezone=True), nullable=True, default=None
+    )
+
     __table_args__ = (
         # Index voor joins met kvkvestigingen
         Index("ix_vestigingsprofiel_vest_updated", vestigingsnummer, last_updated),
