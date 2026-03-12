@@ -152,24 +152,19 @@ def process_csv(csv_path: str, kvk_client: KVKApiClient, writer: BasisProfielWri
 
 
 def process_missing(kvk_client: KVKApiClient, writer: BasisProfielWriter, reader: BasisProfielReader) -> int:
-    logger.info("Finding missing KvK nummers...")
-
     count_missing = reader.get_missing_kvk_nummers_count()
-    logger.info("Total missing KvK nummers: %s", count_missing)
-
     missing_kvk_nummers = reader.get_missing_kvk_nummers(KVK_FETCH_LIMIT)
-    description = f"{len(missing_kvk_nummers)} missing KvK nummer(s) (limit: {KVK_FETCH_LIMIT})"
+    logger.info("Missing KvK nummers: %s total, processing %s", count_missing, len(missing_kvk_nummers))
 
-    return process_kvk_nummers(missing_kvk_nummers, description, kvk_client, writer)
+    return process_kvk_nummers(missing_kvk_nummers, "missing", kvk_client, writer)
 
 
 def process_outdated(kvk_client: KVKApiClient, writer: BasisProfielWriter, reader: BasisProfielReader) -> int:
-    logger.info("Finding outdated KvK nummers...")
+    count_outdated = reader.get_outdated_kvk_nummers_count()
     outdated_kvk_nummers = reader.get_outdated_kvk_nummers()
-    logger.debug("Found outdated kvk records: %s", outdated_kvk_nummers)
+    logger.info("Outdated KvK nummers: %s total, processing %s", count_outdated, len(outdated_kvk_nummers))
 
-    description = f"{len(outdated_kvk_nummers)} outdated KvK nummer(s)"
-    return process_kvk_nummers(outdated_kvk_nummers, description, kvk_client, writer)
+    return process_kvk_nummers(outdated_kvk_nummers, "outdated", kvk_client, writer)
 
 
 def run_daemon(kvk_client: KVKApiClient, engine, batch_size: int, interval: int) -> None:
