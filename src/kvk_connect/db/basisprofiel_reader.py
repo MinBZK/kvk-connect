@@ -17,12 +17,24 @@ class BasisProfielReader:
 
         Hiermee halen we kvk nummers op die wel uit signalen komen, maar mogelijk nog niet bekend zijn.
         Hierdoor beperking op aantal op te halen nummers per keer (limit), zodat we langzaam over tijd inlopen.
+
+        Bevat ook records waarvan de retry_after verstreken is (tijdelijk niet-leverbaar).
+        Tombstones (niet_leverbaar_code IS NOT NULL) worden altijd uitgesloten.
         """
         with Session(self.engine) as session:
             stmt = (
                 select(SignaalORM.kvknummer)
                 .outerjoin(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
-                .where(BasisProfielORM.kvk_nummer.is_(None))
+                .where(
+                    # Nooit eerder opgehaald
+                    BasisProfielORM.kvk_nummer.is_(None)
+                    # OF: tijdelijk geblokkeerd maar retry_after verstreken
+                    | (
+                        BasisProfielORM.niet_leverbaar_code.is_(None)
+                        & BasisProfielORM.retry_after.is_not(None)
+                        & (BasisProfielORM.retry_after <= func.now())
+                    )
+                )
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
@@ -39,7 +51,14 @@ class BasisProfielReader:
             stmt = (
                 select(func.count(func.distinct(SignaalORM.kvknummer)))
                 .outerjoin(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
-                .where(BasisProfielORM.kvk_nummer.is_(None))
+                .where(
+                    BasisProfielORM.kvk_nummer.is_(None)
+                    | (
+                        BasisProfielORM.niet_leverbaar_code.is_(None)
+                        & BasisProfielORM.retry_after.is_not(None)
+                        & (BasisProfielORM.retry_after <= func.now())
+                    )
+                )
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
@@ -59,6 +78,8 @@ class BasisProfielReader:
                 .where(
                     SignaalORM.timestamp > BasisProfielORM.last_updated,
                     SignaalORM.vestigingsnummer.is_(None),  # Alleen basisprofiel updates, geen vestigingsprofielen
+                    BasisProfielORM.niet_leverbaar_code.is_(None),  # Geen tombstones updaten
+                    BasisProfielORM.retry_after.is_(None) | (BasisProfielORM.retry_after <= func.now()),  # Geen actieve blokkade
                 )
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen

@@ -6,6 +6,7 @@ import logging
 import requests
 from requests import Response
 
+from ..exceptions import KVKPermanentError, KVKTemporaryError
 from ..models.api.basisprofiel_api import BasisProfielAPI
 from ..models.api.mutatiesignalen_api import MutatiesAPI
 from ..models.api.vestigingen_api import VestigingenAPI
@@ -13,6 +14,8 @@ from ..models.api.vestigingsprofiel_api import VestigingsProfielAPI
 from ..utils.rate_limit import global_rate_limit
 from . import endpoints
 from .session import create_session_with_retries
+
+_TEMPORARY_CODES = {"IPD1002", "IPD1003"}
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,24 @@ class KVKApiClient:
             return str(error_data)
         except (ValueError, requests.exceptions.JSONDecodeError):
             return resp.text if resp.text else "No error details available"
+
+    @staticmethod
+    def _extract_kvk_fout_codes(resp: Response) -> list[tuple[str, str]]:
+        """Extraheer lijst van (code, omschrijving) tuples uit KVK fout-response."""
+        try:
+            fouten = resp.json().get("fout", [])
+            return [(f.get("code", ""), f.get("omschrijving", "")) for f in fouten if f.get("code")]
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            return []
+
+    @staticmethod
+    def _raise_for_kvk_fout(identifier: str, resp: Response) -> None:
+        """Raise KVKPermanentError of KVKTemporaryError op basis van foutcodes in de response."""
+        fouten = KVKApiClient._extract_kvk_fout_codes(resp)
+        for code, omschrijving in fouten:
+            if code in _TEMPORARY_CODES:
+                raise KVKTemporaryError(identifier, code, omschrijving)
+            raise KVKPermanentError(identifier, code, omschrijving)
 
     @global_rate_limit()
     def get_mutatie_signaal_raw(self, abonnement_id: str, signaal_id: str) -> dict | None:
@@ -113,6 +134,7 @@ class KVKApiClient:
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", kvk_nummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
+            self._raise_for_kvk_fout(kvk_nummer, resp)
             return None
 
     def get_basisprofiel(self, kvk_nummer: str, geo_data: bool = True) -> BasisProfielAPI | None:

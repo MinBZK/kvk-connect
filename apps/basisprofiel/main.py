@@ -4,8 +4,11 @@ from __future__ import annotations
 import argparse
 import csv
 import logging
+import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as pkg_version
 
 from sqlalchemy import create_engine
 
@@ -14,8 +17,12 @@ from kvk_connect import KVKApiClient, logging_config
 from kvk_connect.db.basisprofiel_reader import BasisProfielReader
 from kvk_connect.db.basisprofiel_writer import BasisProfielWriter
 from kvk_connect.db.init import ensure_database_initialized
+from kvk_connect.exceptions import KVKPermanentError, KVKTemporaryError
 from kvk_connect.models.orm.base import Base
 from kvk_connect.services import KVKRecordService
+
+RETRY_DELAY_LONG = timedelta(hours=int(os.getenv("KVK_RETRY_DELAY_HOURS", "24")))
+RETRY_DELAY_SHORT = timedelta(minutes=10)  # IPD1003: "probeer het over 5 minuten"
 
 # Laag default batch size op 1 om db locking te minimaliseren
 BATCH_SIZE = 1
@@ -50,12 +57,20 @@ def process_kvk_nummers(
 
     count = 0
     for kvk_nummer in kvk_nummers:
-        kvk_record = KVKRecordService(kvk_client).get_basisprofiel(kvk_nummer)
-        if kvk_record:
-            writer.add(kvk_record)
-            count += 1
-            if count % 10 == 0:
-                logger.info("Processed %s/%s records...", count, len(kvk_nummers))
+        try:
+            kvk_record = KVKRecordService(kvk_client).get_basisprofiel(kvk_nummer)
+            if kvk_record:
+                writer.add(kvk_record)
+                count += 1
+                if count % 10 == 0:
+                    logger.info("Processed %s/%s records...", count, len(kvk_nummers))
+        except KVKPermanentError as e:
+            logger.warning("KVK %s permanent niet leverbaar (%s), tombstone schrijven", e.kvk_nummer, e.code)
+            writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+        except KVKTemporaryError as e:
+            delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
+            logger.info("KVK %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)
+            writer.mark_retry_after(e.kvk_nummer, delay)
 
     return count
 
@@ -212,8 +227,13 @@ def main() -> None:
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging_config.configure(level=log_level)
 
+    try:
+        app_version = pkg_version("kvk-connect")
+    except PackageNotFoundError:
+        app_version = "onbekend"
+    logger.info("kvk-connect basisprofiel v%s gestart", app_version)
+
     kvk_client = KVKApiClient(api_key=config.API_KEY)
-    print(f"Using KVK API endpoint: {config.SQLALCHEMY_DATABASE_URI}")
     engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, connect_args={"timeout": 30})
 
     ensure_database_initialized(engine, Base)
