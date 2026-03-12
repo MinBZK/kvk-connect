@@ -4,6 +4,7 @@
 *.pyproj.user
 settings.json
 .idea/
+.claude/
 
 #Remove test input/output
 *.zip
