@@ -96,21 +96,23 @@ def process_csv_vestiging(csv_path: str, kvk_client: KVKApiClient, writer: Vesti
 
 
 def process_missing(kvk_client: KVKApiClient, writer: VestigingsProfielWriter, reader: VestigingsProfielReader) -> int:
+    count_missing = reader.get_vestigingen_zonder_vestigingsprofielen_count()
     missing_profielen = reader.get_vestigingen_zonder_vestigingsprofielen()
-    description = f"{len(missing_profielen)} vestigingen without VestigingsProfielen"
-    return process_vestigingen(missing_profielen, description, kvk_client, writer)
+    logger.info("Missing vestigingsprofielen: %s total, processing %s", count_missing, len(missing_profielen))
+    return process_vestigingen(missing_profielen, "missing", kvk_client, writer)
 
 
 def process_outdated(kvk_client: KVKApiClient, writer: VestigingsProfielWriter, reader: VestigingsProfielReader) -> int:
-    outdated_vestigingen = reader.get_outdated_vestigingen()
-    description = f"{len(outdated_vestigingen)} outdated vestigingsprofielen (from kvk vestigingen)"
-    logger.info(description)
-
+    count_outdated = reader.get_outdated_vestigingen_count()
+    count_outdated_signaal = reader.get_outdated_vestigingen_signaal_count()
     outdated_vestigingen_signaal = reader.get_outdated_vestigingen_signaal()
-    description = f"{len(outdated_vestigingen_signaal)} outdated vestigingsprofielen (from signaal)"
-    logger.info(description)
-
-    return process_vestigingen(outdated_vestigingen_signaal, description, kvk_client, writer)
+    logger.info("Outdated vestigingsprofielen from vestigingen: %s total", count_outdated)
+    logger.info(
+        "Outdated vestigingsprofielen from signaal: %s total, processing %s",
+        count_outdated_signaal,
+        len(outdated_vestigingen_signaal),
+    )
+    return process_vestigingen(outdated_vestigingen_signaal, "outdated", kvk_client, writer)
 
 
 def run_daemon(kvk_client: KVKApiClient, engine, batch_size: int, interval: int) -> None:

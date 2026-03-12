@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from kvk_connect.models.orm.signaal_orm import SignaalORM
@@ -30,6 +30,45 @@ class VestigingsProfielReader:
 
             result = session.execute(stmt)
             return [row[0] for row in result.fetchall()]
+
+    def get_vestigingen_zonder_vestigingsprofielen_count(self) -> int:
+        """Retourneert het totaal aantal vestigingsnummers zonder vestigingsprofiel."""
+        with Session(self.engine) as session:
+            stmt = (
+                select(func.count(func.distinct(VestigingenORM.vestigingsnummer)))
+                .outerjoin(
+                    VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer
+                )
+                .where(VestigingsProfielORM.vestigingsnummer.is_(None))
+                .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
+            )
+            result = session.execute(stmt).scalar()
+            return result or 0
+
+    def get_outdated_vestigingen_count(self) -> int:
+        """Retourneert het totaal aantal vestigingsnummers met vestiging nieuwer dan het vestigingsprofiel."""
+        with Session(self.engine) as session:
+            stmt = (
+                select(func.count(func.distinct(VestigingenORM.vestigingsnummer)))
+                .join(VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
+                .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
+                .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
+            )
+            result = session.execute(stmt).scalar()
+            return result or 0
+
+    def get_outdated_vestigingen_signaal_count(self) -> int:
+        """Retourneert het totaal aantal vestigingsnummers met signaal nieuwer dan het vestigingsprofiel."""
+        with Session(self.engine) as session:
+            stmt = (
+                select(func.count(func.distinct(SignaalORM.vestigingsnummer)))
+                .join(VestigingsProfielORM, SignaalORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
+                .where(
+                    SignaalORM.timestamp > VestigingsProfielORM.last_updated, SignaalORM.vestigingsnummer.is_not(None)
+                )
+            )
+            result = session.execute(stmt).scalar()
+            return result or 0
 
     def get_outdated_vestigingen(self, limit: int = 1000) -> list[str]:
         """Return lijst van vestigingsnummers met vestiging nieuwer dan de lastupdated van het vestigingenprofiel."""
