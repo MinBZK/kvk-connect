@@ -50,6 +50,7 @@ class KvKVestigingenReader:
                     VestigingenORM.niet_leverbaar_code.is_not(None)
                     | (VestigingenORM.retry_after.is_not(None) & (VestigingenORM.retry_after > func.now()))
                 )
+                .correlate(BasisProfielORM)
             )
             stmt = (
                 select(func.count(func.distinct(BasisProfielORM.kvk_nummer)))
@@ -74,6 +75,7 @@ class KvKVestigingenReader:
                     VestigingenORM.niet_leverbaar_code.is_not(None)
                     | (VestigingenORM.retry_after.is_not(None) & (VestigingenORM.retry_after > func.now()))
                 )
+                .correlate(BasisProfielORM)
             )
             stmt = (
                 select(BasisProfielORM.kvk_nummer)
