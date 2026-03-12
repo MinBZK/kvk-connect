@@ -53,6 +53,8 @@ class VestigingsProfielReader:
                 .join(VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
                 .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
+                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
+                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
             )
             result = session.execute(stmt).scalar()
             return result or 0
@@ -66,6 +68,8 @@ class VestigingsProfielReader:
                 .where(
                     SignaalORM.timestamp > VestigingsProfielORM.last_updated, SignaalORM.vestigingsnummer.is_not(None)
                 )
+                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
+                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
             )
             result = session.execute(stmt).scalar()
             return result or 0
@@ -79,6 +83,8 @@ class VestigingsProfielReader:
                 .join(VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
                 .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
+                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
+                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
@@ -100,6 +106,8 @@ class VestigingsProfielReader:
                     SignaalORM.timestamp > VestigingsProfielORM.last_updated,
                     SignaalORM.vestigingsnummer.is_not(None),  # Alleen vestigingsprofielen, geen basisprofielen
                 )
+                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
+                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )

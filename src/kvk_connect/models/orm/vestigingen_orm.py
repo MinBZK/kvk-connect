@@ -48,6 +48,14 @@ class VestigingenORM(Base):
         index=True,
     )
 
+    # Foutafhandeling (alleen ingevuld op sentinel-rij)
+    niet_leverbaar_code: Mapped[str | None] = mapped_column(
+        "niet_leverbaar_code", String(16), nullable=True, default=None
+    )
+    retry_after: Mapped[datetime | None] = mapped_column(
+        "retry_after", DateTime(timezone=True), nullable=True, default=None
+    )
+
     __table_args__ = (
         # Index voor filteren op sentinel waarden
         Index(

@@ -34,8 +34,12 @@ class BasisProfielORM(Base):
     registratie_datum_einde: Mapped[datetime | None] = mapped_column("RegistratieDatumEinde", Date)
 
     # Foutafhandeling
-    niet_leverbaar_code: Mapped[str | None] = mapped_column("niet_leverbaar_code", String(16), nullable=True, default=None)
-    retry_after: Mapped[datetime | None] = mapped_column("retry_after", DateTime(timezone=True), nullable=True, default=None)
+    niet_leverbaar_code: Mapped[str | None] = mapped_column(
+        "niet_leverbaar_code", String(16), nullable=True, default=None
+    )
+    retry_after: Mapped[datetime | None] = mapped_column(
+        "retry_after", DateTime(timezone=True), nullable=True, default=None
+    )
 
     # Timestamp fields with defaults
     created_at: Mapped[datetime] = mapped_column(

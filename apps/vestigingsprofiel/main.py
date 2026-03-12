@@ -3,8 +3,9 @@
 import argparse
 import csv
 import logging
+import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine
 
@@ -13,10 +14,13 @@ from kvk_connect import KVKApiClient, logging_config
 from kvk_connect.db.init import ensure_database_initialized
 from kvk_connect.db.vestigingenprofiel_reader import VestigingsProfielReader
 from kvk_connect.db.vestigingsprofiel_writer import VestigingsProfielWriter
+from kvk_connect.exceptions import KVKPermanentError, KVKTemporaryError
 from kvk_connect.models.orm.base import Base
 from kvk_connect.services import KVKRecordService
 
 BATCH_SIZE = 1
+RETRY_DELAY_LONG = timedelta(hours=int(os.getenv("KVK_RETRY_DELAY_HOURS", "24")))
+RETRY_DELAY_SHORT = timedelta(minutes=10)
 
 """
 Doel: Haalt alle VestigingsProfielen op voor KVK nummers en schrijft deze naar de database.
@@ -45,12 +49,20 @@ def process_vestigingen(
 
     count = 0
     for vestiging_nummer in vestiging_nummers:
-        vestigings_profiel = KVKRecordService(kvk_client).get_vestigingsprofiel(vestiging_nummer)
-        if vestigings_profiel:
-            writer.add(vestigings_profiel)
-            count += 1
-            if count % 10 == 0:
-                logger.info("Processed %s/%s records...", count, len(vestiging_nummers))
+        try:
+            vestigings_profiel = KVKRecordService(kvk_client).get_vestigingsprofiel(vestiging_nummer)
+            if vestigings_profiel:
+                writer.add(vestigings_profiel)
+                count += 1
+                if count % 10 == 0:
+                    logger.info("Processed %s/%s records...", count, len(vestiging_nummers))
+        except KVKPermanentError as e:
+            logger.warning("Vestiging %s permanent niet leverbaar (%s), tombstone schrijven", e.kvk_nummer, e.code)
+            writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+        except KVKTemporaryError as e:
+            delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
+            logger.info("Vestiging %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)
+            writer.mark_retry_after(e.kvk_nummer, delay)
 
     return count
 

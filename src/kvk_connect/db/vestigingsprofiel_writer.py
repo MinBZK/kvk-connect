@@ -1,6 +1,6 @@
 # ruff: noqa: D102
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -40,6 +40,26 @@ class VestigingsProfielWriter:
     def flush(self) -> None:
         if self._session:
             self._session.commit()
+
+    def mark_niet_leverbaar(self, vestigingsnummer: str, code: str) -> None:
+        """Schrijf tombstone voor permanent niet-leverbaar vestigingsnummer."""
+        if not self._session:
+            raise RuntimeError("Session not initialized. Use context manager.")
+        orm_obj = VestigingsProfielORM(
+            vestigingsnummer=vestigingsnummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC)
+        )
+        self._session.merge(orm_obj)
+        self._session.commit()
+
+    def mark_retry_after(self, vestigingsnummer: str, delay: timedelta) -> None:
+        """Stel retry_after in voor tijdelijk niet-leverbaar vestigingsnummer."""
+        if not self._session:
+            raise RuntimeError("Session not initialized. Use context manager.")
+        orm_obj = VestigingsProfielORM(
+            vestigingsnummer=vestigingsnummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
+        )
+        self._session.merge(orm_obj)
+        self._session.commit()
 
     def add(self, domain_vestigingsprofiel: VestigingsProfielDomain) -> None:
         if not self._session:
