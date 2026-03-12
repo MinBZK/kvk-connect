@@ -163,6 +163,7 @@ class KVKApiClient:
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", kvk_nummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
+            self._raise_for_kvk_fout(kvk_nummer, resp)
             return None
 
     def get_vestigingen(self, kvk_nummer: str) -> VestigingenAPI | None:
@@ -194,6 +195,7 @@ class KVKApiClient:
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", vestigingsnummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
+            self._raise_for_kvk_fout(vestigingsnummer, resp)
             return None
 
     def get_vestigingsprofiel(self, vestigingsnummer: str, geo_data: bool = True) -> VestigingsProfielAPI | None:

@@ -1,5 +1,5 @@
 import logging
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -39,6 +39,32 @@ class KvKVestigingenWriter:
     def flush(self) -> None:  # noqa: D102
         if self._session:
             self._session.commit()
+
+    def mark_niet_leverbaar(self, kvk_nummer: str, code: str) -> None:
+        """Schrijf tombstone voor permanent niet-leverbaar KVK nummer (vestigingen)."""
+        if not self._session:
+            raise RuntimeError("Session not initialized. Use context manager.")
+        orm_obj = VestigingenORM(
+            kvk_nummer=kvk_nummer,
+            vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+            niet_leverbaar_code=code,
+            last_updated=datetime.now(UTC),
+        )
+        self._session.merge(orm_obj)
+        self._session.commit()
+
+    def mark_retry_after(self, kvk_nummer: str, delay: timedelta) -> None:
+        """Stel retry_after in voor tijdelijk niet-leverbaar KVK nummer (vestigingen)."""
+        if not self._session:
+            raise RuntimeError("Session not initialized. Use context manager.")
+        orm_obj = VestigingenORM(
+            kvk_nummer=kvk_nummer,
+            vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+            retry_after=datetime.now(UTC) + delay,
+            last_updated=datetime.now(UTC),
+        )
+        self._session.merge(orm_obj)
+        self._session.commit()
 
     def add(self, domain_kvkvestigingen: KvKVestigingsNummersDomain) -> None:
         """Schrijf alle vestigingsnummers uit het domeinmodel weg naar de database.

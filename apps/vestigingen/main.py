@@ -2,8 +2,9 @@
 import argparse
 import csv
 import logging
+import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine
 
@@ -12,12 +13,15 @@ from kvk_connect import KVKApiClient, logging_config
 from kvk_connect.db.init import ensure_database_initialized
 from kvk_connect.db.kvkvestigingen_reader import KvKVestigingenReader
 from kvk_connect.db.kvkvestigingen_writer import KvKVestigingenWriter
+from kvk_connect.exceptions import KVKPermanentError, KVKTemporaryError
 from kvk_connect.models.domain import KvKVestigingsNummersDomain
 from kvk_connect.models.orm.base import Base
 from kvk_connect.services import KVKRecordService
 
 # Laag default batch size op 1 om db locking te minimaliseren
 BATCH_SIZE = 1
+RETRY_DELAY_LONG = timedelta(hours=int(os.getenv("KVK_RETRY_DELAY_HOURS", "24")))
+RETRY_DELAY_SHORT = timedelta(minutes=10)
 
 """
 # Update missing records in daemon mode
@@ -43,12 +47,20 @@ def process_kvk_nummers(
 
     count = 0
     for kvk_nummer in kvk_nummers:
-        rec = get_kvk_vestigingen(kvk_nummer, kvk_client)
-        if rec:
-            writer.add(rec)
-            count += 1
-            if count % 10 == 0:
-                logger.info("Processed %s/%s records...", count, len(kvk_nummers))
+        try:
+            rec = get_kvk_vestigingen(kvk_nummer, kvk_client)
+            if rec:
+                writer.add(rec)
+                count += 1
+                if count % 10 == 0:
+                    logger.info("Processed %s/%s records...", count, len(kvk_nummers))
+        except KVKPermanentError as e:
+            logger.warning("KVK %s permanent niet leverbaar (%s), tombstone schrijven", e.kvk_nummer, e.code)
+            writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+        except KVKTemporaryError as e:
+            delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
+            logger.info("KVK %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)
+            writer.mark_retry_after(e.kvk_nummer, delay)
 
     return count
 
