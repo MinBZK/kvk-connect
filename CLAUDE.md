@@ -78,6 +78,15 @@ Apps depend on each other in order: mutatie-reader → basisprofiel → vestigin
 - Database agnostic via SQLAlchemy — no Redis, no Alembic
 - Business domain terms in comments/docstrings may use Dutch; all code (variables, functions) in English
 
+### Git Workflow
+
+Always work on branches — never commit directly to `main`. Two branch types:
+
+- **`feature/...`** — new functionality. Always bump minor version before merging: `just bump minor`
+- **`fix/...`** — bug fixes. Always bump patch version before merging: `just bump patch`
+
+After bumping, commit the version change on the same branch as part of the PR.
+
 ### Git Worktrees
 
 When using git worktrees, create them **inside the project folder** (e.g., `.worktrees/`).
