@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class SignaalWriter:
     def __init__(self, engine, batch_size: int = 10, upsert: bool = True):
-        logger.info("Initializing BasisProfielWriter, met batch size: %d", batch_size)
+        logger.info("Initializing SignaalWriter, met batch size: %d", batch_size)
         self.Session = sessionmaker(bind=engine)
         self.batch_size = batch_size
         self.upsert = upsert

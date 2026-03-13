@@ -150,7 +150,7 @@ def main():
         return
 
     # Initialize database for sync modes
-    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
+    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, connect_args={"timeout": 30})
     ensure_database_initialized(engine, Base)
     repo = SignaalReader(engine)
 
@@ -160,7 +160,7 @@ def main():
         while True:
             try:
                 run_sync(engine, client, args, repo)
-                logger.info(f"Sleeping for {args.interval} minutes...")
+                logger.info("Sleeping for %s minutes...", args.interval)
                 time.sleep(args.interval * 60)
             except KeyboardInterrupt:
                 logger.info("Shutting down daemon...")

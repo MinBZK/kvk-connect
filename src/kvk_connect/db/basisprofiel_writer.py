@@ -64,11 +64,7 @@ class BasisProfielWriter:
         """Schrijf tombstone voor permanent niet-leverbaar KVK nummer (bijv. IPD0005)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
-        orm_obj = BasisProfielORM(
-            kvk_nummer=kvk_nummer,
-            niet_leverbaar_code=code,
-            last_updated=datetime.now(UTC),
-        )
+        orm_obj = BasisProfielORM(kvk_nummer=kvk_nummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC))
         self._session.merge(orm_obj)
         self._session.commit()
 
@@ -77,9 +73,7 @@ class BasisProfielWriter:
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
         orm_obj = BasisProfielORM(
-            kvk_nummer=kvk_nummer,
-            retry_after=datetime.now(UTC) + delay,
-            last_updated=datetime.now(UTC),
+            kvk_nummer=kvk_nummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
         )
         self._session.merge(orm_obj)
         self._session.commit()

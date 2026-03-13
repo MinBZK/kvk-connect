@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class VestigingsProfielWriter:
     def __init__(self, engine, batch_size: int = 1):
-        logger.info("Initializing BasisProfielWriter, met batch size: %d", batch_size)
+        logger.info("Initializing VestigingsProfielWriter, met batch size: %d", batch_size)
         self.Session = sessionmaker(bind=engine)
         self.batch_size = batch_size
         self._session: Session | None = None

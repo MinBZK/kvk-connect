@@ -127,7 +127,7 @@ def run_daemon(kvk_client: KVKApiClient, engine, batch_size: int, interval: int)
         except Exception as e:
             logger.error("Error in daemon cycle: %s", e, exc_info=True)
             logger.info("Retrying in %s minutes...", interval)
-            time.sleep(interval)
+            time.sleep(interval * 60)
 
 
 def main() -> None:
@@ -159,7 +159,7 @@ def main() -> None:
     logging_config.configure(level=log_level)
 
     kvk_client = KVKApiClient(api_key=config.API_KEY)
-    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
+    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, connect_args={"timeout": 30})
     ensure_database_initialized(engine, Base)
 
     if args.daemon:
