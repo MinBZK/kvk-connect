@@ -154,7 +154,7 @@ class KVKApiClient:
         """
         url = endpoints.vestigingen(kvk_nummer)
         try:
-            resp = self.session.get(url, timeout=60)
+            resp = self.session.get(url, timeout=self.timeout)
             resp.raise_for_status()
             logger.debug(
                 "KVK Vestigingen Raw response for kvk nummer %s: %s, with url: %s", kvk_nummer, resp.json(), url
