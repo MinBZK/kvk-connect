@@ -78,6 +78,25 @@ Apps depend on each other in order: mutatie-reader → basisprofiel → vestigin
 - Database agnostic via SQLAlchemy — no Redis, no Alembic
 - Business domain terms in comments/docstrings may use Dutch; all code (variables, functions) in English
 
+### Git Workflow
+
+Always work on branches — never commit directly to `main`. Two branch types:
+
+- **`feature/...`** — new functionality. Always bump minor version before merging: `just bump minor`
+- **`fix/...`** — bug fixes. Always bump patch version before merging: `just bump patch`
+
+After bumping, commit the version change on the same branch as part of the PR.
+
+**Always create new branches from an up-to-date `main`:**
+
+```bash
+git checkout main
+git pull
+git checkout -b feature/my-feature   # or fix/my-fix
+```
+
+Never branch from another feature or fix branch. If you are already on a different branch when starting new work, switch to main and pull first. Branching from a non-main branch causes the PR to include unrelated commits and leads to merge conflicts.
+
 ### Git Worktrees
 
 When using git worktrees, create them **inside the project folder** (e.g., `.worktrees/`).
