@@ -64,18 +64,30 @@ class BasisProfielWriter:
         """Schrijf tombstone voor permanent niet-leverbaar KVK nummer (bijv. IPD0005)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
-        orm_obj = BasisProfielORM(kvk_nummer=kvk_nummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC))
-        self._session.merge(orm_obj)
+        existing = self._session.get(BasisProfielORM, kvk_nummer)
+        if existing:
+            existing.niet_leverbaar_code = code
+            existing.last_updated = datetime.now(UTC)
+        else:
+            self._session.add(
+                BasisProfielORM(kvk_nummer=kvk_nummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC))
+            )
         self._session.commit()
 
     def mark_retry_after(self, kvk_nummer: str, delay: timedelta) -> None:
         """Stel retry_after in voor tijdelijk niet-leverbaar KVK nummer (bijv. IPD1002/IPD1003)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
-        orm_obj = BasisProfielORM(
-            kvk_nummer=kvk_nummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
-        )
-        self._session.merge(orm_obj)
+        existing = self._session.get(BasisProfielORM, kvk_nummer)
+        if existing:
+            existing.retry_after = datetime.now(UTC) + delay
+            existing.last_updated = datetime.now(UTC)
+        else:
+            self._session.add(
+                BasisProfielORM(
+                    kvk_nummer=kvk_nummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
+                )
+            )
         self._session.commit()
 
     @staticmethod

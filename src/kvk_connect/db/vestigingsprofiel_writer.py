@@ -45,20 +45,34 @@ class VestigingsProfielWriter:
         """Schrijf tombstone voor permanent niet-leverbaar vestigingsnummer."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
-        orm_obj = VestigingsProfielORM(
-            vestigingsnummer=vestigingsnummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC)
-        )
-        self._session.merge(orm_obj)
+        existing = self._session.get(VestigingsProfielORM, vestigingsnummer)
+        if existing:
+            existing.niet_leverbaar_code = code
+            existing.last_updated = datetime.now(UTC)
+        else:
+            self._session.add(
+                VestigingsProfielORM(
+                    vestigingsnummer=vestigingsnummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC)
+                )
+            )
         self._session.commit()
 
     def mark_retry_after(self, vestigingsnummer: str, delay: timedelta) -> None:
         """Stel retry_after in voor tijdelijk niet-leverbaar vestigingsnummer."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
-        orm_obj = VestigingsProfielORM(
-            vestigingsnummer=vestigingsnummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
-        )
-        self._session.merge(orm_obj)
+        existing = self._session.get(VestigingsProfielORM, vestigingsnummer)
+        if existing:
+            existing.retry_after = datetime.now(UTC) + delay
+            existing.last_updated = datetime.now(UTC)
+        else:
+            self._session.add(
+                VestigingsProfielORM(
+                    vestigingsnummer=vestigingsnummer,
+                    retry_after=datetime.now(UTC) + delay,
+                    last_updated=datetime.now(UTC),
+                )
+            )
         self._session.commit()
 
     def add(self, domain_vestigingsprofiel: VestigingsProfielDomain) -> None:
