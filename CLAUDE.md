@@ -13,6 +13,8 @@ KVK-Connect is a Python library and Docker microservice suite for integrating wi
 
 Before every commit, always run `just check-all` twice. The first run may auto-fix files (ruff); the second run validates the result is clean. Only commit if the second run passes fully.
 
+Always run `/code-reviewer` before creating a PR.
+
 ```bash
 # Install dependencies
 just install          # uv sync

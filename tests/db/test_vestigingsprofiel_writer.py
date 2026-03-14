@@ -302,3 +302,50 @@ class TestVestigingsProfielWriter:
         """Test mark_retry_after raises without context manager."""
         with pytest.raises(RuntimeError, match="Session not initialized"):
             writer.mark_retry_after("000000000001", timedelta(hours=1))
+
+    def test_mark_niet_leverbaar_preserves_existing_data(
+        self, writer: VestigingsProfielWriter, db_session: Session
+    ) -> None:
+        """Tombstone must not erase previously stored fields (regression: merge() data loss)."""
+        domain = _make_domain(
+            "000000000001",
+            bzk_adres_straatnaam="Teststraat",
+            bzk_adres_postcode="1234AB",
+            registratie_datum_einde_vestiging="31-12-2025",
+        )
+
+        with writer:
+            writer.add(domain)
+
+        with writer:
+            writer.mark_niet_leverbaar("000000000001", "IPD0005")
+
+        record = db_session.query(VestigingsProfielORM).filter_by(
+            vestigingsnummer="000000000001"
+        ).first()
+        assert record.niet_leverbaar_code == "IPD0005"
+        assert record.bzk_adres_straatnaam is not None
+        assert record.registratie_datum_einde_vestiging is not None
+
+    def test_mark_retry_after_preserves_existing_data(
+        self, writer: VestigingsProfielWriter, db_session: Session
+    ) -> None:
+        """mark_retry_after must not erase previously stored fields (regression: merge() data loss)."""
+        domain = _make_domain(
+            "000000000001",
+            bzk_adres_straatnaam="Teststraat",
+            registratie_datum_einde_vestiging="31-12-2025",
+        )
+
+        with writer:
+            writer.add(domain)
+
+        with writer:
+            writer.mark_retry_after("000000000001", timedelta(hours=10))
+
+        record = db_session.query(VestigingsProfielORM).filter_by(
+            vestigingsnummer="000000000001"
+        ).first()
+        assert record.retry_after is not None
+        assert record.bzk_adres_straatnaam is not None
+        assert record.registratie_datum_einde_vestiging is not None

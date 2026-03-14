@@ -407,3 +407,46 @@ class TestBasisProfielWriter:
         """Test mark_retry_after without context manager raises RuntimeError."""
         with pytest.raises(RuntimeError, match="Session not initialized"):
             writer.mark_retry_after("12345678", timedelta(hours=24))
+
+    def test_mark_niet_leverbaar_preserves_existing_data(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+        mock_kvk_basisprofiel_response: dict,
+    ) -> None:
+        """Tombstone must not erase previously stored fields (regression: merge() data loss)."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        with writer:
+            writer.add(domain)
+
+        with writer:
+            writer.mark_niet_leverbaar("12345678", "IPD0005")
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record.niet_leverbaar_code == "IPD0005"
+        assert record.naam is not None
+        assert record.rechtsvorm is not None
+        assert record.registratie_datum_einde is not None
+
+    def test_mark_retry_after_preserves_existing_data(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+        mock_kvk_basisprofiel_response: dict,
+    ) -> None:
+        """mark_retry_after must not erase previously stored fields (regression: merge() data loss)."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        with writer:
+            writer.add(domain)
+
+        with writer:
+            writer.mark_retry_after("12345678", timedelta(hours=10))
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record.retry_after is not None
+        assert record.naam is not None
+        assert record.registratie_datum_einde is not None
