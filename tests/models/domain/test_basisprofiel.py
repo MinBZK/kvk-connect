@@ -57,33 +57,28 @@ class TestBasisProfielDomain:
         complete_data = {
             "kvkNummer": "12345678",
             "naam": "Test Company B.V.",
+            "indNonMailing": "Nee",
+            "formeleRegistratiedatum": "01-01-2020",
             "hoofdactiviteit": "62010",
             "hoofdactiviteitOmschrijving": "IT-consultancy",
             "activiteitOverig": "Software development",
             "rechtsvorm": "Besloten vennootschap",
             "rechtsvormUitgebreid": "B.V.",
             "eersteHandelsnaam": "Test Company",
+            "handelsnamen": "Test Company, Test Services",
             "vestigingsnummer": "000000000001",
             "totaalWerkzamePersonen": 10,
             "websites": "https://test.nl",
             "RegistratieDatumAanvang": "2020-01-15",
             "RegistratieDatumEinde": None,
-            "AdresType": "bezoekadres",
-            "Postbusnummer": None,
-            "AdresStraatnaam": "Hoofdstraat",
-            "AdresToevoeging": "1",
-            "AdresPostcode": "1234 AB",
-            "AdresPlaats": "Amsterdam",
-            "gpsLatitude": "52.3676",
-            "gpsLongitude": "4.9041",
         }
 
         domain = BasisProfielDomain.from_dict(complete_data)
 
         assert domain.kvk_nummer == "12345678"
         assert domain.totaal_werkzame_personen == 10
-        assert domain.gps_latitude == "52.3676"
-        assert domain.adres_straatnaam == "Hoofdstraat"
+        assert domain.ind_non_mailing == "Nee"
+        assert domain.handelsnamen == "Test Company, Test Services"
 
     def test_basisprofiel_empty_dict(self) -> None:
         """Test creating from empty dict."""

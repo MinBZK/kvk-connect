@@ -450,3 +450,49 @@ class TestBasisProfielWriter:
         assert record.retry_after is not None
         assert record.naam is not None
         assert record.registratie_datum_einde is not None
+
+    # --- new field coverage ---
+
+    def test_to_orm_includes_ind_non_mailing(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """ind_non_mailing is stored in ORM."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+        orm_obj = BasisProfielWriter._to_orm(domain)
+
+        assert orm_obj.ind_non_mailing == "Nee"
+
+    def test_to_orm_includes_formele_registratiedatum(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """formele_registratiedatum is parsed and stored as Date."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+        orm_obj = BasisProfielWriter._to_orm(domain)
+
+        assert orm_obj.formele_registratiedatum is not None
+        assert orm_obj.formele_registratiedatum.year == 2020
+
+    def test_to_orm_includes_handelsnamen(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """handelsnamen is stored as sorted comma-separated string."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+        orm_obj = BasisProfielWriter._to_orm(domain)
+
+        assert orm_obj.handelsnamen == "Test Company, Test Services"
+
+    def test_add_all_new_fields_persisted(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+        mock_kvk_basisprofiel_response: dict,
+    ) -> None:
+        """End-to-end: all 3 new fields survive the full API → mapper → writer → DB roundtrip."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        with writer:
+            writer.add(domain)
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record is not None
+        assert record.ind_non_mailing == "Nee"
+        assert record.formele_registratiedatum is not None
+        assert record.handelsnamen == "Test Company, Test Services"

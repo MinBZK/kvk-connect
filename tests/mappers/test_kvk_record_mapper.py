@@ -124,3 +124,54 @@ class TestKvkRecordMapper:
 
         assert domain.eerste_handelsnaam is not None
         logger.info("Handelsnamen properly mapped")
+
+    def test_maps_ind_non_mailing(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """Test ind_non_mailing is mapped from API."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        assert domain.ind_non_mailing == "Nee"
+
+    def test_maps_formele_registratiedatum(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """Test formele_registratiedatum is parsed from YYYYMMDD to DD-MM-YYYY."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        assert domain.formele_registratiedatum == "01-01-2020"
+
+    def test_maps_handelsnamen_sorted_by_volgorde(self, mock_kvk_basisprofiel_response: dict) -> None:
+        """Test handelsnamen sorted by (volgorde, naam) and joined with comma."""
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        assert domain.handelsnamen == "Test Company, Test Services"
+
+    def test_maps_handelsnamen_empty_list(self) -> None:
+        """Test empty handelsnamen list maps to None."""
+        api_response = {
+            "kvkNummer": "12345678",
+            "naam": "Test",
+            "handelsnamen": [],
+            "sbiActiviteiten": [],
+        }
+        api_model = BasisProfielAPI.from_dict(api_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        assert domain.handelsnamen is None
+
+    def test_maps_handelsnamen_sort_stability(self) -> None:
+        """Test equal volgorde uses naam as tiebreaker."""
+        api_response = {
+            "kvkNummer": "12345678",
+            "naam": "Test",
+            "handelsnamen": [
+                {"naam": "Zebra BV", "volgorde": 1},
+                {"naam": "Alpha BV", "volgorde": 1},
+                {"naam": "First BV", "volgorde": 0},
+            ],
+            "sbiActiviteiten": [],
+        }
+        api_model = BasisProfielAPI.from_dict(api_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        assert domain.handelsnamen == "First BV, Alpha BV, Zebra BV"
