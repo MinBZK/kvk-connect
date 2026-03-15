@@ -349,3 +349,146 @@ class TestVestigingsProfielWriter:
         assert record.retry_after is not None
         assert record.bzk_adres_straatnaam is not None
         assert record.registratie_datum_einde_vestiging is not None
+
+    # --- new field coverage ---
+
+    def test_to_orm_includes_kvk_nummer(self) -> None:
+        domain = _make_domain(kvk_nummer="12345678")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.kvk_nummer == "12345678"
+
+    def test_to_orm_includes_rsin(self) -> None:
+        domain = _make_domain(rsin="123456789")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.rsin == "123456789"
+
+    def test_to_orm_includes_ind_non_mailing(self) -> None:
+        domain = _make_domain(ind_non_mailing="Nee")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.ind_non_mailing == "Nee"
+
+    def test_to_orm_includes_formele_registratiedatum(self) -> None:
+        domain = _make_domain(formele_registratiedatum="01-01-2020")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.formele_registratiedatum is not None
+        assert orm_obj.formele_registratiedatum.year == 2020
+
+    def test_to_orm_includes_statutaire_naam(self) -> None:
+        domain = _make_domain(statutaire_naam="Test B.V.")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.statutaire_naam == "Test B.V."
+
+    def test_to_orm_includes_eerste_handelsnaam(self) -> None:
+        domain = _make_domain(eerste_handelsnaam="Test Company")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.eerste_handelsnaam == "Test Company"
+
+    def test_to_orm_includes_ind_hoofdvestiging(self) -> None:
+        domain = _make_domain(ind_hoofdvestiging="Ja")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.ind_hoofdvestiging == "Ja"
+
+    def test_to_orm_includes_ind_commerciele_vestiging(self) -> None:
+        domain = _make_domain(ind_commerciele_vestiging="Ja")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.ind_commerciele_vestiging == "Ja"
+
+    def test_to_orm_includes_werkzame_personen(self) -> None:
+        domain = _make_domain(voltijd_werkzame_personen=5, deeltijd_werkzame_personen=3, totaal_werkzame_personen=8)
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.voltijd_werkzame_personen == 5
+        assert orm_obj.deeltijd_werkzame_personen == 3
+        assert orm_obj.totaal_werkzame_personen == 8
+
+    def test_to_orm_includes_handelsnamen(self) -> None:
+        domain = _make_domain(handelsnamen="Alpha BV, Zebra BV")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.handelsnamen == "Alpha BV, Zebra BV"
+
+    def test_to_orm_includes_sbi_activiteiten(self) -> None:
+        domain = _make_domain(
+            hoofdactiviteit="62010",
+            hoofdactiviteit_omschrijving="Computer programming",
+            activiteit_overig="62020, 62090",
+        )
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.hoofdactiviteit == "62010"
+        assert orm_obj.hoofdactiviteit_omschrijving == "Computer programming"
+        assert orm_obj.activiteit_overig == "62020, 62090"
+
+    def test_to_orm_includes_websites(self) -> None:
+        domain = _make_domain(websites="https://example.com")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.websites == "https://example.com"
+
+    def test_to_orm_includes_cor_adres_volledig_fields(self) -> None:
+        domain = _make_domain(
+            cor_adres_volledig="Postbus 100 1012AB Amsterdam",
+            cor_adres_straatnaam="Teststraat",
+            cor_adres_huisnummer=5,
+            cor_adres_postcode="1012AB",
+            cor_adres_postbusnummer=100,
+            cor_adres_plaats="Amsterdam",
+            cor_adres_land="Nederland",
+        )
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.cor_adres_volledig == "Postbus 100 1012AB Amsterdam"
+        assert orm_obj.cor_adres_straatnaam == "Teststraat"
+        assert orm_obj.cor_adres_huisnummer == 5
+        assert orm_obj.cor_adres_postcode == "1012AB"
+        assert orm_obj.cor_adres_postbusnummer == 100
+        assert orm_obj.cor_adres_plaats == "Amsterdam"
+        assert orm_obj.cor_adres_land == "Nederland"
+
+    def test_to_orm_cor_gps_parses_dot_separator(self) -> None:
+        domain = _make_domain(cor_adres_gps_latitude="52.3676", cor_adres_gps_longitude="4.9041")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.cor_adres_gps_latitude == pytest.approx(52.3676)
+        assert orm_obj.cor_adres_gps_longitude == pytest.approx(4.9041)
+
+    def test_to_orm_cor_gps_parses_comma_separator(self) -> None:
+        domain = _make_domain(cor_adres_gps_latitude="52,3676", cor_adres_gps_longitude="4,9041")
+        orm_obj = VestigingsProfielWriter._to_orm(domain)
+        assert orm_obj.cor_adres_gps_latitude == pytest.approx(52.3676)
+        assert orm_obj.cor_adres_gps_longitude == pytest.approx(4.9041)
+
+    def test_add_all_new_fields_persisted(
+        self,
+        writer: VestigingsProfielWriter,
+        db_session: Session,
+        mock_kvk_vestigingsprofiel_response: dict,
+    ) -> None:
+        """End-to-end: all new fields survive the full API → mapper → writer → DB roundtrip."""
+        from kvk_connect.mappers.map_vestigingsprofiel_api_to_vestigingsprofiel_domain import (
+            map_vestigingsprofiel_api_to_vestigingsprofiel_domain,
+        )
+        from kvk_connect.models.api.vestigingsprofiel_api import VestigingsProfielAPI
+
+        api = VestigingsProfielAPI.from_dict(mock_kvk_vestigingsprofiel_response)
+        domain = map_vestigingsprofiel_api_to_vestigingsprofiel_domain(api)
+
+        with writer:
+            writer.add(domain)
+
+        record = db_session.query(VestigingsProfielORM).filter_by(
+            vestigingsnummer="000000000001"
+        ).first()
+        assert record is not None
+        assert record.kvk_nummer == "12345678"
+        assert record.rsin == "123456789"
+        assert record.ind_non_mailing == "Nee"
+        assert record.formele_registratiedatum is not None
+        assert record.statutaire_naam == "Test B.V."
+        assert record.eerste_handelsnaam == "Test Company"
+        assert record.handelsnamen == "Test Company, Test Services"
+        assert record.ind_hoofdvestiging == "Ja"
+        assert record.ind_commerciele_vestiging == "Ja"
+        assert record.voltijd_werkzame_personen == 5
+        assert record.deeltijd_werkzame_personen == 5
+        assert record.totaal_werkzame_personen == 10
+        assert record.hoofdactiviteit == "62010"
+        assert record.activiteit_overig == "62020, 62090"
+        assert record.websites == "https://example.com"
+        assert record.cor_adres_volledig == "Postbus 100 1012AB Amsterdam"
+        assert record.cor_adres_gps_latitude is None  # GPS 0.0 → None
+        assert record.bzk_adres_gps_latitude == pytest.approx(52.3676, abs=1e-3)

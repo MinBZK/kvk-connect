@@ -59,3 +59,49 @@ class TestEnsureDatabaseInitialized:
         inspector = inspect(fresh_engine)
         created = {t for t in inspector.get_table_names() if t in Base.metadata.tables}
         assert len(created) == len(Base.metadata.tables)
+
+    def test_migrate_adds_missing_column(self, fresh_engine) -> None:
+        """Missing column is added via ALTER TABLE on second initialization."""
+        # Create the table without the 'naam' column (simulate old schema)
+        with fresh_engine.connect() as conn:
+            conn.execute(text("CREATE TABLE basisprofielen (kvkNummer TEXT PRIMARY KEY)"))
+            conn.commit()
+
+        ensure_database_initialized(fresh_engine, Base)
+
+        cols = {c["name"] for c in inspect(fresh_engine).get_columns("basisprofielen")}
+        assert "naam" in cols
+        assert "handelsnamen" in cols
+
+    def test_migrate_is_idempotent(self, fresh_engine) -> None:
+        """Calling ensure_database_initialized twice does not raise or duplicate columns."""
+        ensure_database_initialized(fresh_engine, Base)
+        ensure_database_initialized(fresh_engine, Base)  # should not raise
+
+        cols = [c["name"] for c in inspect(fresh_engine).get_columns("basisprofielen")]
+        assert len(cols) == len(set(cols)), "Duplicate columns detected"
+
+    def test_migrate_logs_added_columns(self, fresh_engine, caplog) -> None:
+        """A log message is emitted for each column added via migration."""
+        import logging
+
+        with fresh_engine.connect() as conn:
+            conn.execute(text("CREATE TABLE basisprofielen (kvkNummer TEXT PRIMARY KEY)"))
+            conn.commit()
+
+        with caplog.at_level(logging.INFO):
+            ensure_database_initialized(fresh_engine, Base)
+
+        assert "Migrated" in caplog.text
+
+    def test_migrate_does_not_touch_complete_tables(self, fresh_engine, caplog) -> None:
+        """No ALTER TABLE is issued when all columns already exist."""
+        import logging
+
+        ensure_database_initialized(fresh_engine, Base)
+        caplog.clear()
+
+        with caplog.at_level(logging.INFO):
+            ensure_database_initialized(fresh_engine, Base)
+
+        assert "Migrated" not in caplog.text

@@ -10,12 +10,32 @@ class VestigingsProfielDomain:
     """Dataclass voor vestigingsprofiel domeinmodel (gefilterde velden)."""
 
     vestigingsnummer: str | None = None
+    kvk_nummer: str | None = None
+    rsin: str | None = None
+    ind_non_mailing: str | None = None
+    formele_registratiedatum: str | None = None
+    statutaire_naam: str | None = None
+    eerste_handelsnaam: str | None = None
+    handelsnamen: str | None = None
+    ind_hoofdvestiging: str | None = None
+    ind_commerciele_vestiging: str | None = None
+    voltijd_werkzame_personen: int | None = None
+    deeltijd_werkzame_personen: int | None = None
+    totaal_werkzame_personen: int | None = None
+    hoofdactiviteit: str | None = None
+    hoofdactiviteit_omschrijving: str | None = None
+    activiteit_overig: str | None = None
+    websites: str | None = None
 
     cor_adres_volledig: str | None = None
+    cor_adres_straatnaam: str | None = None
+    cor_adres_huisnummer: int | None = None
     cor_adres_postcode: str | None = None
     cor_adres_postbusnummer: int | None = None
     cor_adres_plaats: str | None = None
     cor_adres_land: str | None = None
+    cor_adres_gps_latitude: str | None = None
+    cor_adres_gps_longitude: str | None = None
 
     bzk_adres_volledig: str | None = None
     bzk_adres_straatnaam: str | None = None
@@ -36,11 +56,31 @@ class VestigingsProfielDomain:
             return VestigingsProfielDomain()
         return VestigingsProfielDomain(
             vestigingsnummer=d.get("vestigingsnummer"),
+            kvk_nummer=d.get("kvkNummer"),
+            rsin=d.get("rsin"),
+            ind_non_mailing=d.get("indNonMailing"),
+            formele_registratiedatum=d.get("formeleRegistratiedatum"),
+            statutaire_naam=d.get("statutaireNaam"),
+            eerste_handelsnaam=d.get("eersteHandelsnaam"),
+            handelsnamen=d.get("handelsnamen"),
+            ind_hoofdvestiging=d.get("indHoofdvestiging"),
+            ind_commerciele_vestiging=d.get("indCommercieleVestiging"),
+            voltijd_werkzame_personen=d.get("voltijdWerkzamePersonen"),
+            deeltijd_werkzame_personen=d.get("deeltijdWerkzamePersonen"),
+            totaal_werkzame_personen=d.get("totaalWerkzamePersonen"),
+            hoofdactiviteit=d.get("hoofdactiviteit"),
+            hoofdactiviteit_omschrijving=d.get("hoofdactiviteitOmschrijving"),
+            activiteit_overig=d.get("activiteitOverig"),
+            websites=d.get("websites"),
             cor_adres_volledig=d.get("corAdresVolledig"),
+            cor_adres_straatnaam=d.get("corAdresStraatnaam"),
+            cor_adres_huisnummer=d.get("corAdresHuisnummer"),
             cor_adres_postcode=d.get("corAdresPostcode"),
             cor_adres_postbusnummer=d.get("corAdresPostbusnummer"),
             cor_adres_plaats=d.get("corAdresPlaats"),
             cor_adres_land=d.get("corAdresLand"),
+            cor_adres_gps_latitude=d.get("corAdresGpsLatitude"),
+            cor_adres_gps_longitude=d.get("corAdresGpsLongitude"),
             bzk_adres_volledig=d.get("bzkAdresVolledig"),
             bzk_adres_straatnaam=d.get("bzkAdresStraatnaam"),
             bzk_adres_huisnummer=d.get("bzkAdresHuisnummer"),

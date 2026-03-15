@@ -17,9 +17,11 @@ class BasisProfielORM(Base):
     # Text fields
     naam: Mapped[str | None] = mapped_column("naam", Text)
     eerste_handelsnaam: Mapped[str | None] = mapped_column("eersteHandelsnaam", Text)
+    handelsnamen: Mapped[str | None] = mapped_column("handelsnamen", Text)
     websites: Mapped[str | None] = mapped_column("websites", Text)
 
     # String fields
+    ind_non_mailing: Mapped[str | None] = mapped_column("indNonMailing", String(8))
     hoofdactiviteit: Mapped[str | None] = mapped_column("hoofdactiviteit", String(255))
     hoofdactiviteit_omschrijving: Mapped[str | None] = mapped_column("hoofdactiviteitOmschrijving", String(255))
     activiteit_overig: Mapped[str | None] = mapped_column("activiteitOverig", String(255))
@@ -30,6 +32,7 @@ class BasisProfielORM(Base):
     totaal_werkzame_personen: Mapped[int | None] = mapped_column("totaalWerkzamePersonen", Integer)
 
     # Date fields
+    formele_registratiedatum: Mapped[datetime | None] = mapped_column("formeleRegistratiedatum", Date)
     registratie_datum_aanvang: Mapped[datetime | None] = mapped_column("RegistratieDatumAanvang", Date)
     registratie_datum_einde: Mapped[datetime | None] = mapped_column("RegistratieDatumEinde", Date)
 

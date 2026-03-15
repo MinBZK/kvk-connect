@@ -89,38 +89,52 @@ class VestigingsProfielWriter:
             self._session.commit()
 
     @staticmethod
+    def _parse_gps(value: str | None, label: str) -> float | None:
+        if not value:
+            return None
+        try:
+            return float(str(value).replace(",", "."))
+        except (ValueError, AttributeError):
+            logger.warning("Invalid %s value: %s", label, value)
+            return None
+
+    @staticmethod
     def _to_orm(domein_obj: VestigingsProfielDomain) -> VestigingsProfielORM:
-        # Convert GPS coordinates from string to float (handle comma decimal separator)
-        gps_lat = None
-        gps_lon = None
-
-        if domein_obj.bzk_adres_gps_latitude:
-            try:
-                gps_lat = float(domein_obj.bzk_adres_gps_latitude.replace(",", "."))
-            except (ValueError, AttributeError):
-                logger.warning("Invalid latitude value: %s", domein_obj.bzk_adres_gps_latitude)
-
-        if domein_obj.bzk_adres_gps_longitude:
-            try:
-                gps_lon = float(domein_obj.bzk_adres_gps_longitude.replace(",", "."))
-            except (ValueError, AttributeError):
-                logger.warning("Invalid longitude value: %s", domein_obj.bzk_adres_gps_longitude)
-
         return VestigingsProfielORM(
             vestigingsnummer=domein_obj.vestigingsnummer,
+            kvk_nummer=domein_obj.kvk_nummer,
+            rsin=domein_obj.rsin,
+            ind_non_mailing=domein_obj.ind_non_mailing,
+            formele_registratiedatum=parse_kvk_datum(domein_obj.formele_registratiedatum),
+            statutaire_naam=domein_obj.statutaire_naam,
+            eerste_handelsnaam=domein_obj.eerste_handelsnaam,
+            handelsnamen=domein_obj.handelsnamen,
+            ind_hoofdvestiging=domein_obj.ind_hoofdvestiging,
+            ind_commerciele_vestiging=domein_obj.ind_commerciele_vestiging,
+            voltijd_werkzame_personen=domein_obj.voltijd_werkzame_personen,
+            deeltijd_werkzame_personen=domein_obj.deeltijd_werkzame_personen,
+            totaal_werkzame_personen=domein_obj.totaal_werkzame_personen,
+            hoofdactiviteit=domein_obj.hoofdactiviteit,
+            hoofdactiviteit_omschrijving=domein_obj.hoofdactiviteit_omschrijving,
+            activiteit_overig=domein_obj.activiteit_overig,
+            websites=domein_obj.websites,
             cor_adres_volledig=domein_obj.cor_adres_volledig,
+            cor_adres_straatnaam=domein_obj.cor_adres_straatnaam,
+            cor_adres_huisnummer=domein_obj.cor_adres_huisnummer,
             cor_adres_postcode=domein_obj.cor_adres_postcode,
             cor_adres_postbusnummer=domein_obj.cor_adres_postbusnummer,
             cor_adres_plaats=domein_obj.cor_adres_plaats,
             cor_adres_land=domein_obj.cor_adres_land,
+            cor_adres_gps_latitude=VestigingsProfielWriter._parse_gps(domein_obj.cor_adres_gps_latitude, "latitude"),
+            cor_adres_gps_longitude=VestigingsProfielWriter._parse_gps(domein_obj.cor_adres_gps_longitude, "longitude"),
             bzk_adres_volledig=domein_obj.bzk_adres_volledig,
             bzk_adres_straatnaam=domein_obj.bzk_adres_straatnaam,
             bzk_adres_huisnummer=domein_obj.bzk_adres_huisnummer,
             bzk_adres_postcode=domein_obj.bzk_adres_postcode,
             bzk_adres_plaats=domein_obj.bzk_adres_plaats,
             bzk_adres_land=domein_obj.bzk_adres_land,
-            bzk_adres_gps_latitude=gps_lat,
-            bzk_adres_gps_longitude=gps_lon,
+            bzk_adres_gps_latitude=VestigingsProfielWriter._parse_gps(domein_obj.bzk_adres_gps_latitude, "latitude"),
+            bzk_adres_gps_longitude=VestigingsProfielWriter._parse_gps(domein_obj.bzk_adres_gps_longitude, "longitude"),
             registratie_datum_aanvang_vestiging=parse_kvk_datum(domein_obj.registratie_datum_aanvang_vestiging),
             registratie_datum_einde_vestiging=parse_kvk_datum(domein_obj.registratie_datum_einde_vestiging),
         )
