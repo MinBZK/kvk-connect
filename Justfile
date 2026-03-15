@@ -4,7 +4,7 @@ alias a := check-all
 
 # Set the default shell for all platforms
 set shell := ["sh", "-cu"]
-set windows-shell := ["cmd.exe", "/C"]
+set windows-shell := ["bash", "-cu"]
 
 set dotenv-load
 
@@ -85,7 +85,7 @@ build:
 
 # create and push a git tag use: tag name and message
 [group('deployment')]
-tag tag msg:
+tag tag +msg:
     git tag -a {{tag}} -m "{{msg}}"
     git push origin {{tag}}
 
@@ -93,6 +93,7 @@ tag tag msg:
 [group('deployment')]
 bump tag:
     uv version --bump {{tag}}
+    uv lock
 
 # publish the package to PyPI
 [group('deployment')]
