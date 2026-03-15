@@ -26,7 +26,6 @@ RETRY_DELAY_SHORT = timedelta(minutes=10)  # IPD1003: "probeer het over 5 minute
 
 # Laag default batch size op 1 om db locking te minimaliseren
 BATCH_SIZE = 1
-KVK_FETCH_LIMIT = 100
 
 """
 Doel: Haalt alle BasisProfielen op voor KVK nummers en schrijft deze naar de database.
@@ -153,7 +152,7 @@ def process_csv(csv_path: str, kvk_client: KVKApiClient, writer: BasisProfielWri
 
 def process_missing(kvk_client: KVKApiClient, writer: BasisProfielWriter, reader: BasisProfielReader) -> int:
     count_missing = reader.get_missing_kvk_nummers_count()
-    missing_kvk_nummers = reader.get_missing_kvk_nummers(KVK_FETCH_LIMIT)
+    missing_kvk_nummers = reader.get_missing_kvk_nummers()
     logger.info("Missing KvK nummers: %s total, processing %s", count_missing, len(missing_kvk_nummers))
 
     return process_kvk_nummers(missing_kvk_nummers, "missing", kvk_client, writer)
