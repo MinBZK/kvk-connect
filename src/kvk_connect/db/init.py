@@ -32,9 +32,9 @@ def _migrate_missing_columns(engine: Engine, base: type[DeclarativeBase]) -> Non
             if col.name not in existing_cols:
                 col_type = col.type.compile(dialect=engine.dialect)
                 with engine.connect() as conn:
-                    conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN {col.name} {col_type}"))
+                    conn.execute(text(f"ALTER TABLE {table_name} ADD {col.name} {col_type}"))
                     conn.commit()
-                logger.info("Migrated: ALTER TABLE %s ADD COLUMN %s %s", table_name, col.name, col_type)
+                logger.info("Migrated: ALTER TABLE %s ADD %s %s", table_name, col.name, col_type)
 
 
 def ensure_database_initialized(engine: Engine, base: type[DeclarativeBase]) -> None:
