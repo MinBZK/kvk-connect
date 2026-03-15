@@ -72,6 +72,9 @@ class KVKApiClient:
             resp = self.session.get(url, timeout=self.timeout)
             resp.raise_for_status()
             return resp.json()
+        except requests.exceptions.RetryError:
+            logger.warning("KVK API retry exhausted for signaal %s (500s)", signaal_id)
+            return None
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", abonnement_id, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
@@ -103,6 +106,9 @@ class KVKApiClient:
             resp = self.session.get(url, params=params, timeout=self.timeout)
             resp.raise_for_status()
             return resp.json()
+        except requests.exceptions.RetryError:
+            logger.warning("KVK API retry exhausted for mutaties %s (500s)", abonnement_id)
+            return None
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", abonnement_id, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
@@ -131,6 +137,9 @@ class KVKApiClient:
             resp.raise_for_status()
             logger.debug("KVK Basisinformatie Raw response for kvk nummer %s: %s", kvk_nummer, resp.json())
             return resp.json()
+        except requests.exceptions.RetryError:
+            logger.warning("KVK API retry exhausted for basisprofiel %s (500s)", kvk_nummer)
+            raise KVKTemporaryError(kvk_nummer, "HTTP500", "Gateway 500 retry exhausted")
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", kvk_nummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
@@ -160,6 +169,9 @@ class KVKApiClient:
                 "KVK Vestigingen Raw response for kvk nummer %s: %s, with url: %s", kvk_nummer, resp.json(), url
             )
             return resp.json()
+        except requests.exceptions.RetryError:
+            logger.warning("KVK API retry exhausted for vestigingen %s (500s)", kvk_nummer)
+            raise KVKTemporaryError(kvk_nummer, "HTTP500", "Gateway 500 retry exhausted")
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", kvk_nummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
@@ -192,6 +204,9 @@ class KVKApiClient:
                 url,
             )
             return resp.json()
+        except requests.exceptions.RetryError:
+            logger.warning("KVK API retry exhausted for vestigingsprofiel %s (500s)", vestigingsnummer)
+            raise KVKTemporaryError(vestigingsnummer, "HTTP500", "Gateway 500 retry exhausted")
         except requests.HTTPError as e:
             logger.warning("KVK API error for nummer %s: %s", vestigingsnummer, e)
             logger.warning("Mogelijke error: %s", self._get_error_payload(resp))
