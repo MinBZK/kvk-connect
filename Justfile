@@ -4,7 +4,7 @@ alias a := check-all
 
 # Set the default shell for all platforms
 set shell := ["sh", "-cu"]
-set windows-shell := ["bash", "-cu"]
+set windows-shell := ["bash", "-lc"]
 
 set dotenv-load
 
