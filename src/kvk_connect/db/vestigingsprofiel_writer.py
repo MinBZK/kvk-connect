@@ -4,7 +4,9 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
+from kvk_connect.db.historie_utils import _VESTIGINGSPROFIEL_BUSINESS_FIELDS, compute_changed_fields
 from kvk_connect.models.domain.vestigingsprofiel_domain import VestigingsProfielDomain
+from kvk_connect.models.orm.vestigingsprofiel_historie_orm import VestigingsProfielHistorieORM
 from kvk_connect.models.orm.vestigingsprofiel_orm import VestigingsProfielORM
 from kvk_connect.utils.tools import parse_kvk_datum
 
@@ -82,7 +84,56 @@ class VestigingsProfielWriter:
         orm_obj = self._to_orm(domain_vestigingsprofiel)
         orm_obj.last_updated = datetime.now(UTC)
 
+        # ⚠️ Diff VÓÓR merge — merge overschrijft de identity-map instance
+        existing = self._session.get(VestigingsProfielORM, orm_obj.vestigingsnummer)
+        changed = compute_changed_fields(existing, orm_obj, _VESTIGINGSPROFIEL_BUSINESS_FIELDS)
+
         self._session.merge(orm_obj)
+
+        if changed:
+            self._session.add(
+                VestigingsProfielHistorieORM(
+                    vestigingsnummer=orm_obj.vestigingsnummer,
+                    kvk_nummer=orm_obj.kvk_nummer,
+                    gewijzigd_op=orm_obj.last_updated,
+                    gewijzigde_velden=",".join(changed),
+                    rsin=orm_obj.rsin,
+                    ind_non_mailing=orm_obj.ind_non_mailing,
+                    ind_hoofdvestiging=orm_obj.ind_hoofdvestiging,
+                    ind_commerciele_vestiging=orm_obj.ind_commerciele_vestiging,
+                    statutaire_naam=orm_obj.statutaire_naam,
+                    eerste_handelsnaam=orm_obj.eerste_handelsnaam,
+                    handelsnamen=orm_obj.handelsnamen,
+                    hoofdactiviteit=orm_obj.hoofdactiviteit,
+                    hoofdactiviteit_omschrijving=orm_obj.hoofdactiviteit_omschrijving,
+                    activiteit_overig=orm_obj.activiteit_overig,
+                    voltijd_werkzame_personen=orm_obj.voltijd_werkzame_personen,
+                    deeltijd_werkzame_personen=orm_obj.deeltijd_werkzame_personen,
+                    totaal_werkzame_personen=orm_obj.totaal_werkzame_personen,
+                    websites=orm_obj.websites,
+                    cor_adres_volledig=orm_obj.cor_adres_volledig,
+                    cor_adres_straatnaam=orm_obj.cor_adres_straatnaam,
+                    cor_adres_huisnummer=orm_obj.cor_adres_huisnummer,
+                    cor_adres_postcode=orm_obj.cor_adres_postcode,
+                    cor_adres_postbusnummer=orm_obj.cor_adres_postbusnummer,
+                    cor_adres_plaats=orm_obj.cor_adres_plaats,
+                    cor_adres_land=orm_obj.cor_adres_land,
+                    cor_adres_gps_latitude=orm_obj.cor_adres_gps_latitude,
+                    cor_adres_gps_longitude=orm_obj.cor_adres_gps_longitude,
+                    bzk_adres_volledig=orm_obj.bzk_adres_volledig,
+                    bzk_adres_straatnaam=orm_obj.bzk_adres_straatnaam,
+                    bzk_adres_huisnummer=orm_obj.bzk_adres_huisnummer,
+                    bzk_adres_postcode=orm_obj.bzk_adres_postcode,
+                    bzk_adres_plaats=orm_obj.bzk_adres_plaats,
+                    bzk_adres_land=orm_obj.bzk_adres_land,
+                    bzk_adres_gps_latitude=orm_obj.bzk_adres_gps_latitude,
+                    bzk_adres_gps_longitude=orm_obj.bzk_adres_gps_longitude,
+                    formele_registratiedatum=orm_obj.formele_registratiedatum,
+                    registratie_datum_aanvang_vestiging=orm_obj.registratie_datum_aanvang_vestiging,
+                    registratie_datum_einde_vestiging=orm_obj.registratie_datum_einde_vestiging,
+                )
+            )
+
         self._count += 1
 
         if self._count % self.batch_size == 0:
