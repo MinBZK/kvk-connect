@@ -4,7 +4,9 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from kvk_connect.db.historie_utils import _BASISPROFIEL_BUSINESS_FIELDS, compute_changed_fields
 from kvk_connect.models.domain import BasisProfielDomain
+from kvk_connect.models.orm.basisprofiel_historie_orm import BasisProfielHistorieORM
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.utils.tools import parse_kvk_datum
 
@@ -54,7 +56,35 @@ class BasisProfielWriter:
         orm_obj = self._to_orm(domain_basisprofiel)
         orm_obj.last_updated = datetime.now(UTC)
 
+        # ⚠️ Diff VÓÓR merge — merge overschrijft de identity-map instance
+        existing = self._session.get(BasisProfielORM, orm_obj.kvk_nummer)
+        changed = compute_changed_fields(existing, orm_obj, _BASISPROFIEL_BUSINESS_FIELDS)
+
         self._session.merge(orm_obj)
+
+        if changed:
+            self._session.add(
+                BasisProfielHistorieORM(
+                    kvk_nummer=orm_obj.kvk_nummer,
+                    gewijzigd_op=orm_obj.last_updated,
+                    gewijzigde_velden=",".join(changed),
+                    naam=orm_obj.naam,
+                    eerste_handelsnaam=orm_obj.eerste_handelsnaam,
+                    handelsnamen=orm_obj.handelsnamen,
+                    websites=orm_obj.websites,
+                    ind_non_mailing=orm_obj.ind_non_mailing,
+                    hoofdactiviteit=orm_obj.hoofdactiviteit,
+                    hoofdactiviteit_omschrijving=orm_obj.hoofdactiviteit_omschrijving,
+                    activiteit_overig=orm_obj.activiteit_overig,
+                    rechtsvorm=orm_obj.rechtsvorm,
+                    rechtsvorm_uitgebreid=orm_obj.rechtsvorm_uitgebreid,
+                    totaal_werkzame_personen=orm_obj.totaal_werkzame_personen,
+                    formele_registratiedatum=orm_obj.formele_registratiedatum,
+                    registratie_datum_aanvang=orm_obj.registratie_datum_aanvang,
+                    registratie_datum_einde=orm_obj.registratie_datum_einde,
+                )
+            )
+
         self._count += 1
 
         if self._count % self.batch_size == 0:
