@@ -191,8 +191,12 @@ class TestBasisProfielReader:
         assert kvk not in outdated
         logger.info("New profile not marked outdated")
 
-    def test_get_outdated_ignores_vestiging_updates(self, db_session: Session, reader: BasisProfielReader) -> None:
-        """Test that vestiging-specific signals are ignored."""
+    def test_get_outdated_includes_vestiging_updates(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Vestiging-specific signals also trigger basisprofiel outdated.
+
+        Basisprofiel must re-fetch on vestiging signals so the full chain
+        (basisprofiel → vestigingen → vestigingsprofiel) propagates correctly.
+        """
         kvk = "12345678"
         vestig_nummer = "000050074695"
 
@@ -204,20 +208,20 @@ class TestBasisProfielReader:
         )
         db_session.add(profile)
 
-        # Add signal for vestiging (not profile)
+        # Add signal for vestiging
         signaal = SignaalORM(
             id="signal-1",
             kvknummer=kvk,
             timestamp=datetime(2024, 1, 2, 10, 0, 0, tzinfo=UTC),
             signaal_type="UPDATE",
-            vestigingsnummer=vestig_nummer,  # Vestiging update, not profile
+            vestigingsnummer=vestig_nummer,
         )
         db_session.add(signaal)
         db_session.commit()
 
         outdated = reader.get_outdated_kvk_nummers()
-        assert kvk not in outdated  # Should not be marked outdated
-        logger.info("Vestiging-only signal ignored correctly")
+        assert kvk in outdated  # Vestiging signals now trigger basisprofiel outdated
+        logger.info("Vestiging signal triggers basisprofiel outdated correctly")
 
     def test_get_outdated_multiple_signals_same_kvk(self, db_session: Session, reader: BasisProfielReader) -> None:
         """Test with multiple signals for same KVK."""

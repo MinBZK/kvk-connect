@@ -77,7 +77,6 @@ class BasisProfielReader:
                 .join(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
                 .where(
                     SignaalORM.timestamp > BasisProfielORM.last_updated,
-                    SignaalORM.vestigingsnummer.is_(None),  # Alleen basisprofiel updates, geen vestigingsprofielen
                     BasisProfielORM.niet_leverbaar_code.is_(None),  # Geen tombstones updaten
                     BasisProfielORM.retry_after.is_(None)
                     | (BasisProfielORM.retry_after <= func.now()),  # Geen actieve blokkade
@@ -97,7 +96,6 @@ class BasisProfielReader:
                 .join(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
                 .where(
                     SignaalORM.timestamp > BasisProfielORM.last_updated,
-                    SignaalORM.vestigingsnummer.is_(None),
                     BasisProfielORM.niet_leverbaar_code.is_(None),
                     BasisProfielORM.retry_after.is_(None) | (BasisProfielORM.retry_after <= func.now()),
                 )
