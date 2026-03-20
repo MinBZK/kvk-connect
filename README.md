@@ -59,6 +59,21 @@ basisprofiel = service.get_basisprofiel("12345678")
 ```
 **NB:** De package naam is `kvk-connect`, maar imports werken met `kvk_connect` (underscore) in Python.
 
+### Met Docker (productie)
+
+Voor omgevingen die op basis van pre-built images uit GHCR willen deployen, zoals Portainer icm Watchtower, is er een docker-compose file. Lokaal bouwen is dan niet nodig.
+
+```bash
+cp .env.docker.example .env.docker
+# Bewerk .env.docker met KVK API-sleutel, SQL-connectiestring en KVK_VERSION
+
+# Start services (haalt images op van ghcr.io/minbzk/)
+docker compose -f docker-compose.prod.yaml up -d
+```
+
+De images bevatten Watchtower-labels, zodat een draaiende Watchtower-instantie updates automatisch oppakt. Hierbij wordt gemonitord op de laatste 'latest' image, als deze afwijkt wordt deze automatisch gedeployed en de services restart.
+
+
 ### Met Docker (stand-alone)
 
 Start een stand-alone lokale instantie met docker compose:
@@ -144,11 +159,18 @@ Available recipes:
 - **Basisprofiel**: Algemene informatie over een bedrijf, zoals naam, KVK nummer, RSIN, oprichtingsdatum, rechtsvorm, eigenaar, etc.
   - Uniek kenmerk: kvk_nummer
 
+- **Basisprofiel_historie**: Elke wijziging over tijd aan een basisprofiel
+  - Uniek kenmerk: kvk_nummer
+
 - **Vestigingen**: Elke kvkNummer heeft 0 of meer vestigingen.
   - Uniek kenmerk: kvk_nummer met vestigingsnummmer of '0000000' als er geen vestiging bestaat.
 
+- **Vestigingen_historie**: Elke wijziging aan een vestiging van een basisprofiel
+
 - **Vestigingsprofiel**: Informatie over een specifieke vestiging van een bedrijf, zoals post- en bezoek-adres en locatie
   - Uniek kenmerk: vestiging_nummer
+
+- **Vestigingsprofiel_historie**: Elke wijziging aan een vestigingsprofiel over tijd.
 
 - **Signalen**: KvK lijst van mutatie-signalen. Hiermee wordt informatie gegeven welk kvknummer een mutatie heeft verwerkt. De Signaal informatie zelf wordt vooralsnog niet verwerkt. Deze mutaties zijn input voor de 4 apps om nieuwe informatie op te halen.
   - NB: Voor deze mutaties is een losse subscription nodig bij de KvK.
@@ -181,8 +203,10 @@ De vijf Docker apps werken onafhankelijk van elkaar samen om de KVK data actueel
     - 'local': Volledig self contained containers met PostgreSQL
     - 'ext': Zelfde functionaliteit, maar met connectie naar externe database.
 * Databases met tabellen worden automatisch aangemaakt, indexen en constraints worden toegevoegd voor optimale werking.
+* Wijzigingshistorie per veld
+  - Bij elke sync worden gewijzigde velden vastgelegd in aparte historietabellen (`basisprofielen_historie`, `vestigingsprofielen_historie`, `vestigingen_historie`).
+  - Identieke re-fetches genereren geen nieuwe rij. Verwijderde vestigingen worden als afzonderlijk 'verwijderd'-event opgeslagen.
 
 ## Roadmap
-* Change historie bij kunnen houden.
 * HelmChart voor deploy
 * PowerBI rapport welke aangesloten kan worden en direct kan werken met de opgehaalde data.
