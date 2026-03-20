@@ -1,6 +1,6 @@
 import logging
 
-from kvk_connect.api.client import KVKApiClient
+from kvk_connect.services.kvk_api_protocol import KVKApiClientProtocol
 from kvk_connect.mappers.kvk_record_mapper import map_kvkbasisprofiel_api_to_kvkrecord
 from kvk_connect.mappers.map_vestigingen_api_to_vestigingsnummers import map_vestigingen_api_to_vestigingsnummers
 from kvk_connect.mappers.map_vestigingsprofiel_api_to_vestigingsprofiel_domain import (
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class KVKRecordService:
     """Service for fetching and mapping KVK records to domain models."""
 
-    def __init__(self, client: KVKApiClient) -> None:
+    def __init__(self, client: KVKApiClientProtocol) -> None:
         self.client = client
 
     def get_basisprofiel(self, kvk_nummer: str) -> BasisProfielDomain | None:

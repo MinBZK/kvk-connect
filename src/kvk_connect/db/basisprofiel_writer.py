@@ -45,11 +45,13 @@ class BasisProfielWriter:
             self._session.close()
             self._session = None
 
-    def flush(self) -> None:  # noqa: D102
+    def flush(self) -> None:
+        """Schrijf openstaande wijzigingen naar de database."""
         if self._session:
             self._session.commit()
 
-    def add(self, domain_basisprofiel: BasisProfielDomain) -> None:  # noqa: D102
+    def add(self, domain_basisprofiel: BasisProfielDomain) -> None:
+        """Sla een basisprofiel domeinobject op in de database."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
 

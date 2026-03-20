@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -13,7 +12,8 @@ class MutatieSignaal:
     vestigingsnummer: str | None = None
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "MutatieSignaal":  # noqa: D102
+    def from_dict(cls, data: dict[str, Any]) -> "MutatieSignaal":
+        """Deserialize from a dictionary."""
         ts = data.get("timestamp", "")
         dt = datetime.fromisoformat(ts.replace("Z", "+00:00")) if ts else None
         return cls(
@@ -34,7 +34,8 @@ class MutatiesAPI:
     signalen: list[MutatieSignaal] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "MutatiesAPI":  # noqa: D102
+    def from_dict(cls, data: dict[str, Any]) -> "MutatiesAPI":
+        """Deserialize from a dictionary."""
         return cls(
             pagina=data.get("pagina", 0),
             aantal=data.get("aantal", 0),

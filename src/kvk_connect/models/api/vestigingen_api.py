@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 import json
@@ -20,7 +19,8 @@ class Vestiging:
     links: list[Link] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any] | None) -> Vestiging | None:  # noqa: D102
+    def from_dict(d: dict[str, Any] | None) -> Vestiging | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Vestiging(
@@ -44,7 +44,8 @@ class VestigingenAPI:
     links: list[Link] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> VestigingenAPI:  # noqa: D102
+    def from_dict(d: dict[str, Any]) -> VestigingenAPI:
+        """Deserialize from a dictionary."""
         return VestigingenAPI(
             kvk_nummer=d.get("kvkNummer", "") or "",
             aantal_commerciele_vestigingen=d.get("aantalCommercieleVestigingen"),
@@ -55,19 +56,23 @@ class VestigingenAPI:
         )
 
     @staticmethod
-    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingenAPI:  # noqa: D102
+    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingenAPI:
+        """Laad vanuit een JSON-bestand."""
         with open(path, encoding=encoding) as f:
             data = json.load(f)
         return VestigingenAPI.from_dict(data)
 
     @staticmethod
-    def load_from_json(json_str: str) -> VestigingenAPI:  # noqa: D102
+    def load_from_json(json_str: str) -> VestigingenAPI:
+        """Deserialize from a JSON string."""
         data = json.loads(json_str)
         return VestigingenAPI.from_dict(data)
 
     @staticmethod
-    def load_from_dict(data: dict[str, Any]) -> VestigingenAPI:  # noqa: D102
+    def load_from_dict(data: dict[str, Any]) -> VestigingenAPI:
+        """Deserialize from a dictionary."""
         return VestigingenAPI.from_dict(data)
 
-    def to_dict(self) -> dict[str, Any]:  # noqa: D102
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
         return asdict(self)

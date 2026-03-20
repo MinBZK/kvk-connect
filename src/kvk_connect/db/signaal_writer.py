@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 import logging
 
 from sqlalchemy.orm import Session, sessionmaker
@@ -38,6 +37,7 @@ class SignaalWriter:
             self._session = None
 
     def add(self, api_signaal: MutatieSignaal) -> None:
+        """Voeg een mutatiesignaal toe aan de database."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
 
@@ -55,6 +55,7 @@ class SignaalWriter:
                 self._buffer.clear()
 
     def flush(self) -> None:
+        """Schrijf openstaande wijzigingen naar de database."""
         if not self._session:
             return
         if not self.upsert and self._buffer:

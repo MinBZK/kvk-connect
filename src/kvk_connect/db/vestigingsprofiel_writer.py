@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 import logging
 from datetime import UTC, datetime, timedelta
 
@@ -40,6 +39,7 @@ class VestigingsProfielWriter:
             self._session = None
 
     def flush(self) -> None:
+        """Schrijf openstaande wijzigingen naar de database."""
         if self._session:
             self._session.commit()
 
@@ -78,6 +78,7 @@ class VestigingsProfielWriter:
         self._session.commit()
 
     def add(self, domain_vestigingsprofiel: VestigingsProfielDomain) -> None:
+        """Sla een vestigingsprofiel domeinobject op in de database."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
 

@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -30,7 +29,8 @@ class BasisProfielDomain:
     registratie_datum_einde: str | None = None
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> BasisProfielDomain:  # noqa: D102
+    def from_dict(d: dict[str, Any]) -> BasisProfielDomain:
+        """Deserialize from a dictionary."""
         return BasisProfielDomain(
             kvk_nummer=d.get("kvkNummer"),
             naam=d.get("naam"),
@@ -51,5 +51,6 @@ class BasisProfielDomain:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
         """Converteer domeinmodel naar dictionary."""
         return asdict(self)

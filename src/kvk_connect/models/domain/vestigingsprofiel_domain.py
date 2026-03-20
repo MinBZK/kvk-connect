@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -94,5 +93,6 @@ class VestigingsProfielDomain:
         )
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
         """Converteer domeinmodel naar dictionary."""
         return asdict(self)

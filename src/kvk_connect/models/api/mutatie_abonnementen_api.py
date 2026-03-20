@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from dataclasses import dataclass
 
 
@@ -7,7 +6,8 @@ class Contract:
     id: str
 
     @staticmethod
-    def from_dict(data: dict) -> "Contract":  # noqa: D102
+    def from_dict(data: dict) -> "Contract":
+        """Deserialize from a dictionary."""
         return Contract(id=data["id"])
 
 
@@ -19,7 +19,8 @@ class Abonnement:
     actief: bool
 
     @staticmethod
-    def from_dict(data: dict) -> "Abonnement":  # noqa: D102
+    def from_dict(data: dict) -> "Abonnement":
+        """Deserialize from a dictionary."""
         return Abonnement(
             id=data["id"],
             contract=Contract.from_dict(data["contract"]),
@@ -34,7 +35,8 @@ class MutatieAbonnementenAPI:
     abonnementen: list[Abonnement]
 
     @staticmethod
-    def from_dict(data: dict) -> "MutatieAbonnementenAPI":  # noqa: D102
+    def from_dict(data: dict) -> "MutatieAbonnementenAPI":
+        """Deserialize from a dictionary."""
         return MutatieAbonnementenAPI(
             klant_id=data["klantId"], abonnementen=[Abonnement.from_dict(a) for a in data["abonnementen"]]
         )
