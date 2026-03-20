@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 import json
@@ -17,6 +16,7 @@ class Link:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> Link | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Link(rel=d.get("rel", "") or "", href=d.get("href", "") or "")
@@ -34,6 +34,7 @@ class GeoData:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> GeoData | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return GeoData(
@@ -63,6 +64,7 @@ class Adres:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> Adres | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Adres(
@@ -87,6 +89,7 @@ class MaterieleRegistratie:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> MaterieleRegistratie | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return MaterieleRegistratie(datum_aanvang=d.get("datumAanvang"), datum_einde=d.get("datumEinde"))
@@ -99,6 +102,7 @@ class HandelNaam:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> HandelNaam | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return HandelNaam(naam=d.get("naam", "") or "", volgorde=d.get("volgorde"))
@@ -112,6 +116,7 @@ class SBIActiviteit:
 
     @staticmethod
     def from_dict(d: dict[str, Any] | None) -> SBIActiviteit | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return SBIActiviteit(
@@ -136,7 +141,8 @@ class Hoofdvestiging:
     links: list[Link] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any] | None) -> Hoofdvestiging | None:  # noqa: D102
+    def from_dict(d: dict[str, Any] | None) -> Hoofdvestiging | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Hoofdvestiging(
@@ -161,7 +167,8 @@ class Eigenaar:
     links: list[Link] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any] | None) -> Eigenaar | None:  # noqa: D102
+    def from_dict(d: dict[str, Any] | None) -> Eigenaar | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Eigenaar(
@@ -177,7 +184,8 @@ class Embedded:
     eigenaar: Eigenaar | None = None
 
     @staticmethod
-    def from_dict(d: dict[str, Any] | None) -> Embedded | None:  # noqa: D102
+    def from_dict(d: dict[str, Any] | None) -> Embedded | None:
+        """Deserialize from a dictionary."""
         if not d:
             return None
         return Embedded(
@@ -200,7 +208,8 @@ class BasisProfielAPI:
     embedded: Embedded | None = None
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> BasisProfielAPI:  # noqa: D102
+    def from_dict(d: dict[str, Any]) -> BasisProfielAPI:
+        """Deserialize from a dictionary."""
         return BasisProfielAPI(
             kvk_nummer=d.get("kvkNummer", "") or "",
             ind_non_mailing=d.get("indNonMailing", "") or "",
@@ -215,19 +224,23 @@ class BasisProfielAPI:
         )
 
     @staticmethod
-    def load_from_file(path: str, encoding: str = "utf-8") -> BasisProfielAPI:  # noqa: D102
+    def load_from_file(path: str, encoding: str = "utf-8") -> BasisProfielAPI:
+        """Laad vanuit een JSON bestand."""
         with open(path, encoding=encoding) as f:
             data = json.load(f)
         return BasisProfielAPI.from_dict(data)
 
     @staticmethod
-    def load_from_json(json_str: str) -> BasisProfielAPI:  # noqa: D102
+    def load_from_json(json_str: str) -> BasisProfielAPI:
+        """Deserialize from a JSON string."""
         data = json.loads(json_str)
         return BasisProfielAPI.from_dict(data)
 
     @staticmethod
-    def load_from_dict(data: dict[str, Any]) -> BasisProfielAPI:  # noqa: D102
+    def load_from_dict(data: dict[str, Any]) -> BasisProfielAPI:
+        """Deserialize from a dictionary."""
         return BasisProfielAPI.from_dict(data)
 
-    def to_dict(self) -> dict[str, Any]:  # noqa: D102
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
         return asdict(self)

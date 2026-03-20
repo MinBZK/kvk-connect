@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 import json
@@ -24,7 +23,8 @@ class VestigingsAdressenDomain:
         return VestigingsAdressenDomain(adressen=profielen)
 
     @staticmethod
-    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingsAdressenDomain:  # noqa: D102
+    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingsAdressenDomain:
+        """Laad vanuit een JSON-bestand."""
         with open(path, encoding=encoding) as f:
             data = json.load(f)
         if not isinstance(data, list):
@@ -32,17 +32,21 @@ class VestigingsAdressenDomain:
         return VestigingsAdressenDomain.from_list(data)
 
     @staticmethod
-    def load_from_json(json_str: str) -> VestigingsAdressenDomain:  # noqa: D102
+    def load_from_json(json_str: str) -> VestigingsAdressenDomain:
+        """Deserialize from a JSON string."""
         data = json.loads(json_str)
         if not isinstance(data, list):
             raise ValueError("JSON must be a list of vestigingsprofielen.")
         return VestigingsAdressenDomain.from_list(data)
 
-    def add_adres(self, adres: VestigingsAdresDomain) -> None:  # noqa: D102
+    def add_adres(self, adres: VestigingsAdresDomain) -> None:
+        """Voeg een adres toe aan de lijst."""
         self.adressen.append(adres)
 
-    def add_adressen(self, adres: VestigingsAdressenDomain) -> None:  # noqa: D102
+    def add_adressen(self, adres: VestigingsAdressenDomain) -> None:
+        """Voeg meerdere adressen toe aan de lijst."""
         self.adressen.extend(adres.adressen)
 
-    def to_dict(self) -> dict:  # noqa: D102
+    def to_dict(self) -> dict:
+        """Serialize to a dictionary."""
         return asdict(self)

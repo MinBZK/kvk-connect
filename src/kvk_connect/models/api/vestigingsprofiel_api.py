@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 import json
@@ -30,7 +29,8 @@ class VestigingsProfielAPI:
     links: list[Link] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> VestigingsProfielAPI:  # noqa: D102
+    def from_dict(d: dict[str, Any]) -> VestigingsProfielAPI:
+        """Deserialize from a dictionary."""
         return VestigingsProfielAPI(
             vestigingsnummer=d.get("vestigingsnummer", "") or "",
             kvk_nummer=d.get("kvkNummer", "") or "",
@@ -53,19 +53,23 @@ class VestigingsProfielAPI:
         )
 
     @staticmethod
-    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingsProfielAPI:  # noqa: D102
+    def load_from_file(path: str, encoding: str = "utf-8") -> VestigingsProfielAPI:
+        """Laad vanuit een JSON-bestand."""
         with open(path, encoding=encoding) as f:
             data = json.load(f)
         return VestigingsProfielAPI.from_dict(data)
 
     @staticmethod
-    def load_from_json(json_str: str) -> VestigingsProfielAPI:  # noqa: D102
+    def load_from_json(json_str: str) -> VestigingsProfielAPI:
+        """Deserialize from a JSON string."""
         data = json.loads(json_str)
         return VestigingsProfielAPI.from_dict(data)
 
     @staticmethod
-    def load_from_dict(data: dict[str, Any]) -> VestigingsProfielAPI:  # noqa: D102
+    def load_from_dict(data: dict[str, Any]) -> VestigingsProfielAPI:
+        """Deserialize from a dictionary."""
         return VestigingsProfielAPI.from_dict(data)
 
-    def to_dict(self) -> dict[str, Any]:  # noqa: D102
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize to a dictionary."""
         return asdict(self)

@@ -37,7 +37,8 @@ class KvKVestigingenWriter:
                 self._session.close()
             self._session = None
 
-    def flush(self) -> None:  # noqa: D102
+    def flush(self) -> None:
+        """Schrijf openstaande wijzigingen naar de database."""
         if self._session:
             self._session.commit()
 

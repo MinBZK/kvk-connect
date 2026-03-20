@@ -14,20 +14,22 @@ from ..models.api.vestigingsprofiel_api import VestigingsProfielAPI
 from ..utils.rate_limit import global_rate_limit
 from . import endpoints
 from .session import create_session_with_retries
+from kvk_connect.services.kvk_api_protocol import KVKApiClientProtocol
 
 _TEMPORARY_CODES = {"IPD1002", "IPD1003"}
 
 logger = logging.getLogger(__name__)
 
 
-class KVKApiClient:
+class KVKApiClient(KVKApiClientProtocol):
     def __init__(self, api_key: str, base_url: str = endpoints.DEFAULT_BASE_URL):
         self.session = create_session_with_retries()  # requests.Session()
         self.session.headers.update({"apikey": api_key})
         self.base_url = base_url
         self.timeout = 600
 
-    def close(self):  # noqa: D102
+    def close(self) -> None:
+        """Sluit de onderliggende HTTP sessie."""
         self.session.close()
 
     @staticmethod

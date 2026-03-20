@@ -1,4 +1,3 @@
-# ruff: noqa: D102
 from __future__ import annotations
 
 import json
@@ -14,15 +13,18 @@ class KvKVestigingsNummersDomain:
     vestigingsnummers: list[str] = field(default_factory=list)
 
     @staticmethod
-    def from_dict(d: dict[str, Any]) -> KvKVestigingsNummersDomain:  # noqa: D102
+    def from_dict(d: dict[str, Any]) -> KvKVestigingsNummersDomain:
+        """Deserialize from a dictionary."""
         return KvKVestigingsNummersDomain(
             kvk_nummer=d.get("kvkNummer", "") or "", vestigingsnummers=d.get("vestigingen") or []
         )
 
     @staticmethod
-    def load_from_json(json_str: str) -> KvKVestigingsNummersDomain:  # noqa: D102
+    def load_from_json(json_str: str) -> KvKVestigingsNummersDomain:
+        """Deserialize from a JSON string."""
         data = json.loads(json_str)
         return KvKVestigingsNummersDomain.from_dict(data)
 
-    def to_dict(self) -> dict:  # noqa: D102
+    def to_dict(self) -> dict:
+        """Serialize to a dictionary."""
         return {"kvkNummer": self.kvk_nummer, "vestigingen": list(self.vestigingsnummers)}
