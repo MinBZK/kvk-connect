@@ -27,6 +27,7 @@ class BasisProfielDomain:
     websites: str | None = None
     registratie_datum_aanvang: str | None = None
     registratie_datum_einde: str | None = None
+    niet_leverbaar_code: str | None = None
 
     @staticmethod
     def from_dict(d: dict[str, Any]) -> BasisProfielDomain:

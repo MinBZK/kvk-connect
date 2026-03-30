@@ -96,6 +96,30 @@ services:
     networks:
       - kvk-network
 
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/mcp-server/Dockerfile
+    container_name: kvk-mcp-server
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - MCP_PORT=8000
+    ports:
+      - "8001:8000"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - kvk-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 networks:
   kvk-network:
     driver: bridge
