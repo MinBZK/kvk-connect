@@ -120,6 +120,7 @@ services:
     build:
       context: .
       dockerfile: apps/mcp-server/Dockerfile
+    container_name: kvk-mcp-server
     restart: unless-stopped
     env_file:
       - .env.docker

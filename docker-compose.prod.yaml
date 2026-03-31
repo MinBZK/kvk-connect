@@ -105,6 +105,30 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
+  mcp-server:
+    image: ghcr.io/minbzk/mcp-server:${KVK_VERSION:-latest}
+    container_name: kvk-mcp-server
+    restart: unless-stopped
+    environment:
+      - MCP_TRANSPORT=streamable-http
+      - MCP_PORT=8000
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+    ports:
+      - "8001:8000"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - kvk-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
 networks:
   kvk-network:
     driver: bridge
