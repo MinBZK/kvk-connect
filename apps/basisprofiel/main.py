@@ -228,7 +228,7 @@ def main() -> None:
     logger.info("kvk-connect basisprofiel v%s gestart", app_version)
 
     kvk_client = KVKApiClient(api_key=config.API_KEY)
-    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True, connect_args={"timeout": 30})
+    engine = create_engine(config.SQLALCHEMY_DATABASE_URI, pool_pre_ping=True)
 
     ensure_database_initialized(engine, Base)
 
