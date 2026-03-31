@@ -13,11 +13,12 @@
    - [Als ontwikkelaar](#als-ontwikkelaar)
 4. [Structuur van KvK](#structuur-van-kvk)
 5. [Data Flow](#data-flow-van-de-docker-apps)
-6. [Database Schema](#database-schema)
-7. [Functionaliteit](#functionaliteit)
-8. [Ontwikkelaarsgids](#ontwikkelaarsgids)
-9. [Roadmap](#roadmap)
-10. [KvK API Documentatie](#kvk-api-documentatie)
+6. [MCP Server](#mcp-server)
+7. [Database Schema](#database-schema)
+8. [Functionaliteit](#functionaliteit)
+9. [Ontwikkelaarsgids](#ontwikkelaarsgids)
+10. [Roadmap](#roadmap)
+11. [KvK API Documentatie](#kvk-api-documentatie)
 
 ---
 
@@ -183,6 +184,73 @@ De vijf Docker apps werken onafhankelijk van elkaar samen om de KVK data actueel
 
 ![AppsStructure](docs/apps.drawio.svg)
 
+
+## MCP Server
+
+De MCP server (`apps/mcp-server/`) stelt de KVK datamirror beschikbaar voor LLMs via het [Model Context Protocol](https://modelcontextprotocol.io/). Hiermee kan een LLM zelfstandig bedrijfsgegevens opzoeken, vestigingen doorzoeken en mutaties analyseren.
+
+### Tools
+
+| Laag | Tool | Omschrijving |
+|------|------|-------------|
+| Exacte lookups | `get_bedrijf` | Basisprofiel voor KVK-nummer |
+| | `get_vestiging` | Vestigingsprofiel voor vestigingsnummer |
+| | `list_vestigingen` | Alle vestigingen van een KVK-nummer |
+| | `get_alles` | Basisprofiel + alle vestigingen in één aanroep |
+| | `check_doorstarter` | Zoek actieve opvolger op hetzelfde adres |
+| Analytisch | `zoek_op_naam_prefix` | Zoek bedrijven op naam |
+| | `filter_op_sbi` | Filter vestigingen op SBI-sector en gemeente |
+| | `check_actiefstatus_batch` | Actiefstatus voor meerdere KVK-nummers |
+| Historie | `get_basisprofiel_historie` | Wijzigingsgeschiedenis basisprofiel |
+| | `get_vestigingsprofiel_historie` | Wijzigingsgeschiedenis vestigingsprofiel |
+| Overig | `report_onbekende_vraag` | Registreert vragen die niet beantwoord kunnen worden |
+
+### Starten
+
+De MCP server draait automatisch mee met Docker Compose op poort 8001:
+
+```bash
+docker compose -f docker-compose.local.yaml up -d
+curl http://localhost:8001/health  # {"status": "ok"}
+```
+
+### Transport
+
+Het transport is configureerbaar via de `MCP_TRANSPORT` environment variable:
+
+| Waarde | Gebruik |
+|--------|---------|
+| `streamable-http` | Default. Voor Docker en HTTP-clients (lokale LLMs) |
+| `stdio` | Voor directe integratie met Claude Desktop |
+| `sse` | Legacy, vervangen door streamable-http |
+
+### Verbinden met Claude Desktop
+
+De MCP server draait als HTTP-service. Claude Desktop heeft de [mcp-remote](https://www.npmjs.com/package/mcp-remote) bridge nodig om via stdio met een HTTP-endpoint te communiceren.
+
+```bash
+npm install -g mcp-remote
+```
+
+Voeg toe aan `claude_desktop_config.json` (Settings > Developer > Edit Config):
+
+```json
+{
+  "mcpServers": {
+    "kvk-connect": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "<pad-naar-npm-global>/node_modules/mcp-remote/dist/proxy.js",
+        "http://localhost:8001/mcp"
+      ]
+    }
+  }
+}
+```
+
+Zoek het globale npm pad met `npm root -g`. Herstart Claude Desktop na het aanpassen van de config.
+
+---
 
 ## Database Schema (ORM Model)
 
