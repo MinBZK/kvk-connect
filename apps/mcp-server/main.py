@@ -179,8 +179,15 @@ async def get_vestigingsprofiel_historie(vestigingsnummer: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+_VALID_TRANSPORTS = {"stdio", "sse", "streamable-http"}
+
+
 def main() -> None:
     global _service
+
+    transport = os.getenv("MCP_TRANSPORT", "streamable-http")
+    if transport not in _VALID_TRANSPORTS:
+        raise SystemExit(f"Ongeldig MCP_TRANSPORT={transport!r}, kies uit {_VALID_TRANSPORTS}")
 
     parser = argparse.ArgumentParser(description="KVK-Connect MCP server.")
     parser.add_argument("--debug", action="store_true", help="Enable DEBUG log level.")
@@ -202,8 +209,11 @@ def main() -> None:
     writer = McpOnbekendVraagWriter(engine)
     _service = KVKMirrorService(reader, writer)
 
-    logger.info("MCP server luistert op %s:%d", _host, _port)
-    mcp.run(transport="streamable-http")
+    if transport == "stdio":
+        logger.info("MCP server gestart in STDIO-modus")
+    else:
+        logger.info("MCP server luistert op %s:%d (%s)", _host, _port, transport)
+    mcp.run(transport=transport)
 
 
 if __name__ == "__main__":

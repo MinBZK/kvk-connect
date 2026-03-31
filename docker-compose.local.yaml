@@ -125,6 +125,7 @@ services:
       - .env.docker
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - MCP_TRANSPORT=streamable-http
       - MCP_PORT=8000
     ports:
       - "8001:8000"

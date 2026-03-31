@@ -105,6 +105,7 @@ services:
     env_file:
       - .env.docker
     environment:
+      - MCP_TRANSPORT=streamable-http
       - MCP_PORT=8000
     ports:
       - "8001:8000"

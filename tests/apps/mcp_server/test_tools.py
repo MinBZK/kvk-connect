@@ -72,11 +72,33 @@ class TestMain:
         assert main._host == os.getenv("MCP_HOST", "0.0.0.0")
         assert main._port == int(os.getenv("MCP_PORT", "8000"))
 
-    def test_stateless_http_ingeschakeld(self) -> None:
-        """stateless_http=True zodat curl-aanroepen zonder sessie werken."""
+    def test_transport_configureerbaar_via_env(self, db_engine: Engine, monkeypatch: pytest.MonkeyPatch) -> None:
+        """MCP_TRANSPORT env var bepaalt transport modus."""
         import main
 
-        assert main.mcp.settings.stateless_http is True
+        monkeypatch.setenv("MCP_TRANSPORT", "stdio")
+        monkeypatch.setattr(sys, "argv", ["main.py"])
+        monkeypatch.setattr(main, "create_engine", lambda *a, **kw: db_engine)
+        monkeypatch.setattr(main, "ensure_database_initialized", lambda *a, **kw: None)
+
+        run_calls: list[dict] = []
+        monkeypatch.setattr(main.mcp, "run", lambda **kw: run_calls.append(kw))
+        main.main()
+
+        assert run_calls[0]["transport"] == "stdio"
+
+    def test_ongeldig_transport_geeft_exit(self, db_engine: Engine, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Ongeldig MCP_TRANSPORT resulteert in SystemExit."""
+        monkeypatch.setenv("MCP_TRANSPORT", "invalid")
+        monkeypatch.setattr(sys, "argv", ["main.py"])
+
+        import main
+
+        monkeypatch.setattr(main, "create_engine", lambda *a, **kw: db_engine)
+        monkeypatch.setattr(main, "ensure_database_initialized", lambda *a, **kw: None)
+
+        with pytest.raises(SystemExit):
+            main.main()
 
     def test_main_debug_flag_zet_log_level(self, db_engine: Engine, monkeypatch: pytest.MonkeyPatch) -> None:
         """--debug flag resulteert in DEBUG log level."""
