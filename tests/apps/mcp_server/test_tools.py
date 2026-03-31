@@ -72,6 +72,12 @@ class TestMain:
         assert main._host == os.getenv("MCP_HOST", "0.0.0.0")
         assert main._port == int(os.getenv("MCP_PORT", "8000"))
 
+    def test_stateless_http_ingeschakeld(self) -> None:
+        """stateless_http=True zodat curl-aanroepen zonder sessie werken."""
+        import main
+
+        assert main.mcp.settings.stateless_http is True
+
     def test_main_debug_flag_zet_log_level(self, db_engine: Engine, monkeypatch: pytest.MonkeyPatch) -> None:
         """--debug flag resulteert in DEBUG log level."""
         import logging

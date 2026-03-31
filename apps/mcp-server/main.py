@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 _host = os.getenv("MCP_HOST", "0.0.0.0")
 _port = int(os.getenv("MCP_PORT", "8000"))
-mcp = FastMCP("kvk-connect", host=_host, port=_port)
+mcp = FastMCP("kvk-connect", host=_host, port=_port, stateless_http=True)
 _service: KVKMirrorService | None = None
 
 
