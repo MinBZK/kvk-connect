@@ -26,7 +26,9 @@ from kvk_connect.services.mirror_service import KVKMirrorService
 
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("kvk-connect")
+_host = os.getenv("MCP_HOST", "0.0.0.0")
+_port = int(os.getenv("MCP_PORT", "8000"))
+mcp = FastMCP("kvk-connect", host=_host, port=_port)
 _service: KVKMirrorService | None = None
 
 
@@ -200,10 +202,8 @@ def main() -> None:
     writer = McpOnbekendVraagWriter(engine)
     _service = KVKMirrorService(reader, writer)
 
-    host = os.getenv("MCP_HOST", "0.0.0.0")
-    port = int(os.getenv("MCP_PORT", "8000"))
-    logger.info("MCP server luistert op %s:%d", host, port)
-    mcp.run(transport="streamable-http", host=host, port=port)
+    logger.info("MCP server luistert op %s:%d", _host, _port)
+    mcp.run(transport="streamable-http")
 
 
 if __name__ == "__main__":
