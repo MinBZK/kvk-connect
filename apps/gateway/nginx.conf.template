@@ -28,6 +28,12 @@ http {
         listen 80;
         server_name _;
 
+        # Docker interne resolver, TTL 30s zodat DNS-wijzigingen worden opgepikt
+        resolver 127.0.0.11 valid=30s ipv6=off;
+ 
+        # Upstream host als variabele zodat Nginx dynamisch resolvet (niet bij startup)
+        set $kvk_upstream ${KVK_API_HOST};
+
         # Health check endpoint
         location /health {
             access_log off;
@@ -42,12 +48,13 @@ http {
             limit_req_status 429;
 
             # Direct proxy - volledig transparant
-            proxy_pass https://${KVK_API_HOST}/api/v1/;
+            # Gebruik $kvk_upstream variabele zodat Nginx runtime DNS-resolutie doet via de resolver
+            proxy_pass https://$kvk_upstream/api/v1/;
             proxy_ssl_server_name on;
             proxy_ssl_verify off;
 
             # Alleen Host header zetten (vereist voor HTTPS)
-            proxy_set_header Host ${KVK_API_HOST};
+            proxy_set_header Host $kvk_upstream;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
