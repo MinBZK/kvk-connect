@@ -51,7 +51,13 @@ http {
             # Gebruik $kvk_upstream variabele zodat Nginx runtime DNS-resolutie doet via de resolver
             proxy_pass https://$kvk_upstream/api/v1/;
             proxy_ssl_server_name on;
+            # Expliciete SNI-hostname: bij variabele-proxy_pass leidt Nginx proxy_ssl_name niet altijd goed af
+            proxy_ssl_name $kvk_upstream;
             proxy_ssl_verify off;
+
+            # HTTP/1.1 naar upstream (KVK accepteert HTTP/1.0 niet betrouwbaar); lege Connection header zodat keep-alive kan
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
 
             # Alleen Host header zetten (vereist voor HTTPS)
             proxy_set_header Host $kvk_upstream;
