@@ -207,11 +207,11 @@ De MCP server (`apps/mcp-server/`) stelt de KVK datamirror beschikbaar voor LLMs
 
 ### Starten
 
-De MCP server draait automatisch mee met Docker Compose op poort 8001:
+De MCP server draait automatisch mee met Docker Compose op poort 8050:
 
 ```bash
 docker compose -f docker-compose.local.yaml up -d
-curl http://localhost:8001/health  # {"status": "ok"}
+curl http://localhost:8050/health  # {"status": "ok"}
 ```
 
 ### Transport
@@ -241,7 +241,7 @@ Voeg toe aan `claude_desktop_config.json` (Settings > Developer > Edit Config):
       "command": "C:\\Program Files\\nodejs\\node.exe",
       "args": [
         "<pad-naar-npm-global>/node_modules/mcp-remote/dist/proxy.js",
-        "http://localhost:8001/mcp"
+        "http://localhost:8050/mcp"
       ]
     }
   }

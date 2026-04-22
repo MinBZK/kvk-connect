@@ -66,11 +66,11 @@ class TestMain:
         assert isinstance(main._service, KVKMirrorService)
 
     def test_default_host_en_port(self) -> None:
-        """Standaard host is 0.0.0.0 en port 8000 — veilig in Docker."""
+        """Standaard host is 0.0.0.0 en port 8050 — vermijdt conflict met Portainer edge-agent (8000)."""
         import main
 
         assert main._host == os.getenv("MCP_HOST", "0.0.0.0")
-        assert main._port == int(os.getenv("MCP_PORT", "8000"))
+        assert main._port == int(os.getenv("MCP_PORT", "8050"))
 
     def test_transport_configureerbaar_via_env(self, db_engine: Engine, monkeypatch: pytest.MonkeyPatch) -> None:
         """MCP_TRANSPORT env var bepaalt transport modus."""
