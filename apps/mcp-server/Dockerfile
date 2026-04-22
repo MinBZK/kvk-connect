@@ -33,6 +33,6 @@ COPY apps/mcp-server ./apps/mcp-server
 ENV PATH=/app/.venv/bin:$PATH \
     PYTHONPATH=/app/src
 
-EXPOSE 8000
+EXPOSE 8050
 
 CMD ["uv", "run", "--no-sync", "python", "apps/mcp-server/main.py"]

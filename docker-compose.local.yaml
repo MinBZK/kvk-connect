@@ -127,16 +127,16 @@ services:
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - MCP_TRANSPORT=streamable-http
-      - MCP_PORT=8000
+      - MCP_PORT=8050
     ports:
-      - "8001:8000"
+      - "8050:8050"
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - kvk-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8000/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8050/health"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -27,7 +27,7 @@ from kvk_connect.services.mirror_service import KVKMirrorService
 logger = logging.getLogger(__name__)
 
 _host = os.getenv("MCP_HOST", "0.0.0.0")
-_port = int(os.getenv("MCP_PORT", "8000"))
+_port = int(os.getenv("MCP_PORT", "8050"))
 mcp = FastMCP("kvk-connect", host=_host, port=_port, stateless_http=True)
 _service: KVKMirrorService | None = None
 
