@@ -70,10 +70,16 @@ def process_vestigingen(
 def process_single_kvk(kvk_nummer: str, kvk_client: KVKApiClient, writer: VestigingsProfielWriter) -> int:
     logger.info("Processing single KvK nr=%s", kvk_nummer)
 
-    # Ophaal alle vestigingen voor dit KvK nummer
-    kvk_vestingen = KVKRecordService(kvk_client).get_vestigingen(kvk_nummer)
-    vestiging_nummers = kvk_vestingen.vestigingsnummers if kvk_vestingen else []
+    try:
+        kvk_vestingen = KVKRecordService(kvk_client).get_vestigingen(kvk_nummer)
+    except KVKPermanentError as e:
+        logger.warning("KVK %s permanent niet leverbaar (%s), geen vestigingen ophaalbaar", e.kvk_nummer, e.code)
+        return 0
+    except KVKTemporaryError as e:
+        logger.info("KVK %s tijdelijk niet leverbaar (%s), vestigingen overgeslagen", e.kvk_nummer, e.code)
+        return 0
 
+    vestiging_nummers = kvk_vestingen.vestigingsnummers if kvk_vestingen else []
     return process_vestigingen(vestiging_nummers, f"KvK nr={kvk_nummer}", kvk_client, writer)
 
 

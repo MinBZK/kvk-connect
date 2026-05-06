@@ -120,10 +120,20 @@ def process_csv(csv_path: str, kvk_client: KVKApiClient, writer: BasisProfielWri
                         continue
 
                     # Fetch and store new records
-                    kvk_record = KVKRecordService(kvk_client).get_basisprofiel(kvk_nummer)
-                    if kvk_record:
-                        writer.add(kvk_record)
-                        count_processed += 1
+                    try:
+                        kvk_record = KVKRecordService(kvk_client).get_basisprofiel(kvk_nummer)
+                        if kvk_record:
+                            writer.add(kvk_record)
+                            count_processed += 1
+                    except KVKPermanentError as e:
+                        logger.warning("KVK %s permanent niet leverbaar (%s), tombstone", e.kvk_nummer, e.code)
+                        writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+                        count_skipped += 1
+                    except KVKTemporaryError as e:
+                        delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
+                        logger.info("KVK %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)
+                        writer.mark_retry_after(e.kvk_nummer, delay)
+                        count_skipped += 1
 
                     if count_total % 1000 == 0:
                         logger.info(
