@@ -2,6 +2,7 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
@@ -18,7 +19,7 @@ class KvKVestigingenReader:
                 .select_from(BasisProfielORM)
                 .outerjoin(VestigingenORM, BasisProfielORM.kvk_nummer == VestigingenORM.kvk_nummer)
                 .where(VestigingenORM.kvk_nummer.is_(None))
-                .where(BasisProfielORM.niet_leverbaar_code.is_(None))
+                .where(BasisProfielORM.status == KVKStatus.ACTIEF)
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
@@ -34,7 +35,7 @@ class KvKVestigingenReader:
                 .select_from(BasisProfielORM)
                 .outerjoin(VestigingenORM, BasisProfielORM.kvk_nummer == VestigingenORM.kvk_nummer)
                 .where(VestigingenORM.kvk_nummer.is_(None))
-                .where(BasisProfielORM.niet_leverbaar_code.is_(None))
+                .where(BasisProfielORM.status == KVKStatus.ACTIEF)
             )
             result = session.execute(stmt).scalar()
             return result or 0
@@ -47,8 +48,11 @@ class KvKVestigingenReader:
                 .where(VestigingenORM.kvk_nummer == BasisProfielORM.kvk_nummer)
                 .where(VestigingenORM.vestigingsnummer == VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
                 .where(
-                    VestigingenORM.niet_leverbaar_code.is_not(None)
-                    | (VestigingenORM.retry_after.is_not(None) & (VestigingenORM.retry_after > func.now()))
+                    (VestigingenORM.status == KVKStatus.UITGESCHREVEN)
+                    | (
+                        (VestigingenORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
+                        & (VestigingenORM.retry_after > func.now())
+                    )
                 )
                 .correlate(BasisProfielORM)
             )
@@ -72,8 +76,11 @@ class KvKVestigingenReader:
                 .where(VestigingenORM.kvk_nummer == BasisProfielORM.kvk_nummer)
                 .where(VestigingenORM.vestigingsnummer == VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
                 .where(
-                    VestigingenORM.niet_leverbaar_code.is_not(None)
-                    | (VestigingenORM.retry_after.is_not(None) & (VestigingenORM.retry_after > func.now()))
+                    (VestigingenORM.status == KVKStatus.UITGESCHREVEN)
+                    | (
+                        (VestigingenORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
+                        & (VestigingenORM.retry_after > func.now())
+                    )
                 )
                 .correlate(BasisProfielORM)
             )

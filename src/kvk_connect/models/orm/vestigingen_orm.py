@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy import DateTime, ForeignKey, Index, String
 from sqlalchemy.orm import Mapped, mapped_column
 
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.base import Base
 
 
@@ -49,6 +50,7 @@ class VestigingenORM(Base):
     )
 
     # Foutafhandeling (alleen ingevuld op sentinel-rij)
+    status: Mapped[KVKStatus | None] = mapped_column("status", String(32), nullable=True)
     niet_leverbaar_code: Mapped[str | None] = mapped_column(
         "niet_leverbaar_code", String(16), nullable=True, default=None
     )

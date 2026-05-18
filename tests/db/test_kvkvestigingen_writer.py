@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from kvk_connect.db.kvkvestigingen_writer import KvKVestigingenWriter
 from kvk_connect.models.domain.kvkvestigingsnummersdomain import KvKVestigingsNummersDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
@@ -235,9 +236,9 @@ class TestKvKVestigingenWriter:
             writer.add(domain)
             assert writer._count == 2
 
-    # --- mark_niet_leverbaar ---
+    # --- mark_uitgeschreven ---
 
-    def test_mark_niet_leverbaar_writes_tombstone(
+    def test_mark_uitgeschreven_writes_tombstone(
         self,
         writer: KvKVestigingenWriter,
         db_session: Session,
@@ -245,7 +246,7 @@ class TestKvKVestigingenWriter:
     ) -> None:
         """Test tombstone record written with correct code."""
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(VestigingenORM).filter_by(
             kvk_nummer="12345678",
@@ -253,8 +254,9 @@ class TestKvKVestigingenWriter:
         ).first()
         assert record is not None
         assert record.niet_leverbaar_code == "IPD0005"
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_has_no_retry_after(
+    def test_mark_uitgeschreven_has_no_retry_after(
         self,
         writer: KvKVestigingenWriter,
         db_session: Session,
@@ -262,20 +264,21 @@ class TestKvKVestigingenWriter:
     ) -> None:
         """Test tombstone does not set retry_after."""
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(VestigingenORM).filter_by(
             kvk_nummer="12345678",
             vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
         ).first()
         assert record.retry_after is None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_without_context_raises(
+    def test_mark_uitgeschreven_without_context_raises(
         self, writer: KvKVestigingenWriter
     ) -> None:
-        """Test mark_niet_leverbaar without context manager raises RuntimeError."""
+        """Test mark_uitgeschreven without context manager raises RuntimeError."""
         with pytest.raises(RuntimeError, match="Session not initialized"):
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
     # --- mark_retry_after ---
 
@@ -295,6 +298,7 @@ class TestKvKVestigingenWriter:
         ).first()
         assert record is not None
         assert record.retry_after is not None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_timestamp_in_future(
         self,
@@ -313,6 +317,7 @@ class TestKvKVestigingenWriter:
             vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
         ).first()
         assert record.retry_after > before + timedelta(hours=1)
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_has_no_niet_leverbaar_code(
         self,
@@ -329,6 +334,7 @@ class TestKvKVestigingenWriter:
             vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
         ).first()
         assert record.niet_leverbaar_code is None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_without_context_raises(
         self, writer: KvKVestigingenWriter

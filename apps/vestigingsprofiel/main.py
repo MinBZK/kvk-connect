@@ -58,7 +58,7 @@ def process_vestigingen(
                     logger.info("Processed %s/%s records...", count, len(vestiging_nummers))
         except KVKPermanentError as e:
             logger.warning("Vestiging %s permanent niet leverbaar (%s), tombstone schrijven", e.kvk_nummer, e.code)
-            writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+            writer.mark_uitgeschreven(e.kvk_nummer, e.code)
         except KVKTemporaryError as e:
             delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
             logger.info("Vestiging %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)
@@ -116,8 +116,20 @@ def process_csv_vestiging(csv_path: str, kvk_client: KVKApiClient, writer: Vesti
 def process_missing(kvk_client: KVKApiClient, writer: VestigingsProfielWriter, reader: VestigingsProfielReader) -> int:
     count_missing = reader.get_vestigingen_zonder_vestigingsprofielen_count()
     missing_profielen = reader.get_vestigingen_zonder_vestigingsprofielen()
-    logger.info("Missing vestigingsprofielen: %s total, processing %s", count_missing, len(missing_profielen))
-    return process_vestigingen(missing_profielen, "missing", kvk_client, writer)
+
+    count_retry = reader.get_vestigingsprofielen_met_verlopen_retry_count()
+    retry_profielen = reader.get_vestigingsprofielen_met_verlopen_retry()
+
+    # The two sets are always disjoint: missing_profielen have no row in vestigingsprofielen,
+    # retry_profielen have a row (with TIJDELIJK status). Concatenation is safe without dedup.
+    all_to_process = missing_profielen + retry_profielen
+    logger.info(
+        "Missing vestigingsprofielen: %s zonder profiel, %s met verlopen retry, verwerken: %s",
+        count_missing,
+        count_retry,
+        len(all_to_process),
+    )
+    return process_vestigingen(all_to_process, "missing + verlopen retry", kvk_client, writer)
 
 
 def process_outdated(kvk_client: KVKApiClient, writer: VestigingsProfielWriter, reader: VestigingsProfielReader) -> int:

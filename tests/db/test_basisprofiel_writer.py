@@ -13,6 +13,7 @@ from kvk_connect.db.basisprofiel_writer import BasisProfielWriter
 from kvk_connect.mappers.kvk_record_mapper import map_kvkbasisprofiel_api_to_kvkrecord
 from kvk_connect.models.api.basisprofiel_api import BasisProfielAPI
 from kvk_connect.models.domain.basisprofiel import BasisProfielDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 
 logger = logging.getLogger(__name__)
@@ -212,6 +213,7 @@ class TestBasisProfielWriter:
         orm_obj = BasisProfielWriter._to_orm(domain)
         assert orm_obj.naam is None
         assert orm_obj.kvk_nummer == "12345678"
+        assert orm_obj.status == KVKStatus.ACTIEF
         logger.info("NULL fields properly handled in ORM conversion")
 
     def test_to_orm_converts_websites_string(self) -> None:
@@ -233,12 +235,13 @@ class TestBasisProfielWriter:
             kvk_nummer="12345678",
             naam="Test",
             rechtsvorm="B.V.",
-            registratie_datum_aanvang="2020-01-15",
-            registratie_datum_einde="2025-12-31",
+            registratie_datum_aanvang="15-01-2020",
+            registratie_datum_einde="31-12-2025",
         )
 
         orm_obj = BasisProfielWriter._to_orm(domain)
         assert orm_obj.kvk_nummer == "12345678"
+        assert orm_obj.status == KVKStatus.UITGESCHREVEN
         logger.info("Date fields properly handled in ORM conversion")
 
     def test_last_updated_timestamp_set_on_add(
@@ -311,52 +314,55 @@ class TestBasisProfielWriter:
             assert writer._count == 2
             logger.info("Counter properly incremented to %d", writer._count)
 
-    # --- mark_niet_leverbaar ---
+    # --- mark_uitgeschreven ---
 
-    def test_mark_niet_leverbaar_writes_tombstone(
+    def test_mark_uitgeschreven_writes_tombstone(
         self,
         writer: BasisProfielWriter,
         db_session: Session,
     ) -> None:
         """Test tombstone record is written with correct code."""
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record is not None
         assert record.niet_leverbaar_code == "IPD0005"
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_has_no_retry_after(
+    def test_mark_uitgeschreven_has_no_retry_after(
         self,
         writer: BasisProfielWriter,
         db_session: Session,
     ) -> None:
         """Test tombstone does not set retry_after."""
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record.retry_after is None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_sets_last_updated(
+    def test_mark_uitgeschreven_sets_last_updated(
         self,
         writer: BasisProfielWriter,
         db_session: Session,
     ) -> None:
         """Test tombstone has last_updated timestamp."""
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record.last_updated is not None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_without_context_raises(
+    def test_mark_uitgeschreven_without_context_raises(
         self,
         writer: BasisProfielWriter,
     ) -> None:
-        """Test mark_niet_leverbaar without context manager raises RuntimeError."""
+        """Test mark_uitgeschreven without context manager raises RuntimeError."""
         with pytest.raises(RuntimeError, match="Session not initialized"):
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
     # --- mark_retry_after ---
 
@@ -372,6 +378,7 @@ class TestBasisProfielWriter:
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record is not None
         assert record.retry_after is not None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_has_no_niet_leverbaar_code(
         self,
@@ -384,6 +391,7 @@ class TestBasisProfielWriter:
 
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record.niet_leverbaar_code is None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_timestamp_is_in_future(
         self,
@@ -399,6 +407,7 @@ class TestBasisProfielWriter:
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         # retry_after should be at least 1 hour from now (we set 24h)
         assert record.retry_after > before + timedelta(hours=1)
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_without_context_raises(
         self,
@@ -408,7 +417,7 @@ class TestBasisProfielWriter:
         with pytest.raises(RuntimeError, match="Session not initialized"):
             writer.mark_retry_after("12345678", timedelta(hours=24))
 
-    def test_mark_niet_leverbaar_preserves_existing_data(
+    def test_mark_uitgeschreven_preserves_existing_data(
         self,
         writer: BasisProfielWriter,
         db_session: Session,
@@ -422,13 +431,12 @@ class TestBasisProfielWriter:
             writer.add(domain)
 
         with writer:
-            writer.mark_niet_leverbaar("12345678", "IPD0005")
+            writer.mark_uitgeschreven("12345678", "IPD0005")
 
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record.niet_leverbaar_code == "IPD0005"
         assert record.naam is not None
-        assert record.rechtsvorm is not None
-        assert record.registratie_datum_einde is not None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
     def test_mark_retry_after_preserves_existing_data(
         self,
@@ -449,7 +457,29 @@ class TestBasisProfielWriter:
         record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
         assert record.retry_after is not None
         assert record.naam is not None
-        assert record.registratie_datum_einde is not None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
+
+    def test_add_after_tombstone_clears_tombstone(
+        self,
+        writer: BasisProfielWriter,
+        db_session: Session,
+        mock_kvk_basisprofiel_response: dict,
+    ) -> None:
+        """add() on a tombstoned record clears the tombstone when the API returns valid data."""
+        with writer:
+            writer.mark_uitgeschreven("12345678", "IPD0005")
+
+        api_model = BasisProfielAPI.from_dict(mock_kvk_basisprofiel_response)
+        domain = map_kvkbasisprofiel_api_to_kvkrecord(api_model)
+
+        with writer:
+            writer.add(domain)
+
+        record = db_session.query(BasisProfielORM).filter_by(kvk_nummer="12345678").first()
+        assert record is not None
+        assert record.status == KVKStatus.ACTIEF
+        assert record.niet_leverbaar_code is None
+        assert record.naam == "Test B.V."
 
     # --- new field coverage ---
 

@@ -56,7 +56,7 @@ def process_kvk_nummers(
                     logger.info("Processed %s/%s records...", count, len(kvk_nummers))
         except KVKPermanentError as e:
             logger.warning("KVK %s permanent niet leverbaar (%s), tombstone schrijven", e.kvk_nummer, e.code)
-            writer.mark_niet_leverbaar(e.kvk_nummer, e.code)
+            writer.mark_uitgeschreven(e.kvk_nummer, e.code)
         except KVKTemporaryError as e:
             delay = RETRY_DELAY_SHORT if e.code == "IPD1003" else RETRY_DELAY_LONG
             logger.info("KVK %s tijdelijk niet leverbaar (%s), retry na %s", e.kvk_nummer, e.code, delay)

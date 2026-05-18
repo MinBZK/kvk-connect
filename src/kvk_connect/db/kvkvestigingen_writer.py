@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.orm import Session, sessionmaker
 
 from kvk_connect.models.domain import KvKVestigingsNummersDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.vestigingen_historie_orm import VestigingenHistorieORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
@@ -42,15 +43,18 @@ class KvKVestigingenWriter:
         if self._session:
             self._session.commit()
 
-    def mark_niet_leverbaar(self, kvk_nummer: str, code: str) -> None:
+    def mark_uitgeschreven(self, kvk_nummer: str, code: str) -> None:
         """Schrijf tombstone voor permanent niet-leverbaar KVK nummer (vestigingen)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         orm_obj = VestigingenORM(
             kvk_nummer=kvk_nummer,
             vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+            status=KVKStatus.UITGESCHREVEN,
             niet_leverbaar_code=code,
-            last_updated=datetime.now(UTC),
+            retry_after=None,
+            last_updated=now,
         )
         self._session.merge(orm_obj)
         self._session.commit()
@@ -59,11 +63,13 @@ class KvKVestigingenWriter:
         """Stel retry_after in voor tijdelijk niet-leverbaar KVK nummer (vestigingen)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         orm_obj = VestigingenORM(
             kvk_nummer=kvk_nummer,
             vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
-            retry_after=datetime.now(UTC) + delay,
-            last_updated=datetime.now(UTC),
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
+            retry_after=now + delay,
+            last_updated=now,
         )
         self._session.merge(orm_obj)
         self._session.commit()
@@ -131,7 +137,10 @@ class KvKVestigingenWriter:
         vestigingsnummers = domain_kvkvestigingen.vestigingsnummers or [VestigingenORM.SENTINEL_VESTIGINGSNUMMER]
         for vestigingsnummer in vestigingsnummers:
             orm_obj = VestigingenORM(
-                kvk_nummer=domain_kvkvestigingen.kvk_nummer, vestigingsnummer=vestigingsnummer, last_updated=timestamp
+                kvk_nummer=domain_kvkvestigingen.kvk_nummer,
+                vestigingsnummer=vestigingsnummer,
+                status=KVKStatus.ACTIEF,
+                last_updated=timestamp,
             )
             self._session.merge(orm_obj)
 

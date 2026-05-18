@@ -9,6 +9,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
 from kvk_connect.db.vestigingenprofiel_reader import VestigingsProfielReader
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.signaal_orm import SignaalORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
@@ -121,6 +122,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.ACTIEF,
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
         )
@@ -135,6 +137,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.ACTIEF,
                 last_updated=datetime(2024, 2, 1, tzinfo=UTC),
             )
         )
@@ -149,6 +152,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.ACTIEF,
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
         )
@@ -159,11 +163,12 @@ class TestVestigingsProfielReader:
     def test_get_outdated_vestigingen_excludes_tombstone(
         self, db_session: Session, reader: VestigingsProfielReader, vestiging: VestigingenORM
     ) -> None:
-        """Profile with niet_leverbaar_code is excluded from outdated."""
+        """Profile with uitgeschreven status is excluded from outdated."""
         vestiging.last_updated = datetime(2024, 2, 1, tzinfo=UTC)
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.UITGESCHREVEN,
                 niet_leverbaar_code="IPD0005",
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -181,6 +186,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) + timedelta(hours=24),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -189,21 +195,22 @@ class TestVestigingsProfielReader:
 
         assert "123456789012" not in reader.get_outdated_vestigingen(limit=10)
 
-    def test_get_outdated_vestigingen_includes_expired_retry_after(
+    def test_get_outdated_vestigingen_excludes_expired_retry_after(
         self, db_session: Session, reader: VestigingsProfielReader, vestiging: VestigingenORM
     ) -> None:
-        """Profile with expired retry_after reappears as outdated."""
+        """Profile with expired retry_after is NOT returned as outdated — only ACTIEF profiles are."""
         vestiging.last_updated = datetime(2024, 2, 1, tzinfo=UTC)
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) - timedelta(hours=1),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
         )
         db_session.commit()
 
-        assert "123456789012" in reader.get_outdated_vestigingen(limit=10)
+        assert "123456789012" not in reader.get_outdated_vestigingen(limit=10)
 
     # --- get_outdated_vestigingen_signaal ---
 
@@ -224,6 +231,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.ACTIEF,
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
         )
@@ -247,6 +255,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.UITGESCHREVEN,
                 niet_leverbaar_code="IPD0005",
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -271,6 +280,7 @@ class TestVestigingsProfielReader:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) + timedelta(hours=24),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -288,12 +298,13 @@ class TestVestigingsProfielReader:
 
         assert "123456789012" not in reader.get_outdated_vestigingen_signaal(limit=10)
 
-    def test_get_outdated_vestigingen_signaal_includes_expired_retry_after(
+    def test_get_outdated_vestigingen_signaal_excludes_expired_retry_after(
         self, db_session: Session, reader: VestigingsProfielReader
     ) -> None:
         db_session.add(
             VestigingsProfielORM(
                 vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) - timedelta(hours=1),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -309,4 +320,78 @@ class TestVestigingsProfielReader:
         )
         db_session.commit()
 
-        assert "123456789012" in reader.get_outdated_vestigingen_signaal(limit=10)
+        assert "123456789012" not in reader.get_outdated_vestigingen_signaal(limit=10)
+
+    # --- get_vestigingsprofielen_met_verlopen_retry ---
+
+    def test_get_verlopen_retry_empty(self, reader: VestigingsProfielReader) -> None:
+        assert reader.get_vestigingsprofielen_met_verlopen_retry(limit=10) == []
+        assert reader.get_vestigingsprofielen_met_verlopen_retry_count() == 0
+
+    def test_get_verlopen_retry_found(
+        self, db_session: Session, reader: VestigingsProfielReader
+    ) -> None:
+        """TIJDELIJK_NIET_BESCHIKBAAR profiel met verlopen retry_after wordt teruggegeven."""
+        db_session.add(
+            VestigingsProfielORM(
+                vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
+                retry_after=datetime.now(UTC) - timedelta(hours=1),
+                last_updated=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        db_session.commit()
+
+        assert "123456789012" in reader.get_vestigingsprofielen_met_verlopen_retry(limit=10)
+        assert reader.get_vestigingsprofielen_met_verlopen_retry_count() == 1
+
+    def test_get_verlopen_retry_excludes_active_retry(
+        self, db_session: Session, reader: VestigingsProfielReader
+    ) -> None:
+        """TIJDELIJK_NIET_BESCHIKBAAR met toekomstige retry_after wordt NIET teruggegeven."""
+        db_session.add(
+            VestigingsProfielORM(
+                vestigingsnummer="123456789012",
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
+                retry_after=datetime.now(UTC) + timedelta(hours=24),
+                last_updated=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        db_session.commit()
+
+        assert "123456789012" not in reader.get_vestigingsprofielen_met_verlopen_retry(limit=10)
+        assert reader.get_vestigingsprofielen_met_verlopen_retry_count() == 0
+
+    def test_get_verlopen_retry_excludes_uitgeschreven(
+        self, db_session: Session, reader: VestigingsProfielReader
+    ) -> None:
+        """UITGESCHREVEN profiel wordt niet teruggegeven, ook niet als retry_after verstreken is."""
+        db_session.add(
+            VestigingsProfielORM(
+                vestigingsnummer="123456789012",
+                status=KVKStatus.UITGESCHREVEN,
+                niet_leverbaar_code="IPD0005",
+                retry_after=datetime.now(UTC) - timedelta(hours=1),
+                last_updated=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        db_session.commit()
+
+        assert "123456789012" not in reader.get_vestigingsprofielen_met_verlopen_retry(limit=10)
+        assert reader.get_vestigingsprofielen_met_verlopen_retry_count() == 0
+
+    def test_get_verlopen_retry_excludes_actief(
+        self, db_session: Session, reader: VestigingsProfielReader
+    ) -> None:
+        """ACTIEF profiel wordt niet teruggegeven."""
+        db_session.add(
+            VestigingsProfielORM(
+                vestigingsnummer="123456789012",
+                status=KVKStatus.ACTIEF,
+                last_updated=datetime(2024, 1, 1, tzinfo=UTC),
+            )
+        )
+        db_session.commit()
+
+        assert "123456789012" not in reader.get_vestigingsprofielen_met_verlopen_retry(limit=10)
+        assert reader.get_vestigingsprofielen_met_verlopen_retry_count() == 0

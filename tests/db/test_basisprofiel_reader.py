@@ -10,6 +10,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
 from kvk_connect.db.basisprofiel_reader import BasisProfielReader
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.signaal_orm import SignaalORM
 
@@ -145,6 +146,7 @@ class TestBasisProfielReader:
         profile = BasisProfielORM(
             kvk_nummer=kvk,
             naam="Test Company",
+            status=KVKStatus.ACTIEF,
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
         db_session.add(profile)
@@ -172,6 +174,7 @@ class TestBasisProfielReader:
         profile = BasisProfielORM(
             kvk_nummer=kvk,
             naam="Test Company",
+            status=KVKStatus.ACTIEF,
             last_updated=datetime(2024, 1, 2, 10, 0, 0, tzinfo=UTC),
         )
         db_session.add(profile)
@@ -204,6 +207,7 @@ class TestBasisProfielReader:
         profile = BasisProfielORM(
             kvk_nummer=kvk,
             naam="Test Company",
+            status=KVKStatus.ACTIEF,
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
         db_session.add(profile)
@@ -231,6 +235,7 @@ class TestBasisProfielReader:
         profile = BasisProfielORM(
             kvk_nummer=kvk,
             naam="Test Company",
+            status=KVKStatus.ACTIEF,
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
         db_session.add(profile)
@@ -264,6 +269,7 @@ class TestBasisProfielReader:
         signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.UITGESCHREVEN,
             niet_leverbaar_code="IPD0005",
             last_updated=datetime.now(UTC),
         )
@@ -278,6 +284,7 @@ class TestBasisProfielReader:
         signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.UITGESCHREVEN,
             niet_leverbaar_code="IPD0005",
             last_updated=datetime.now(UTC),
         )
@@ -291,6 +298,7 @@ class TestBasisProfielReader:
         """Tombstone record is not returned as outdated."""
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.UITGESCHREVEN,
             niet_leverbaar_code="IPD0005",
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
@@ -314,6 +322,7 @@ class TestBasisProfielReader:
         signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
             retry_after=datetime.now(UTC) + timedelta(hours=24),
             last_updated=datetime.now(UTC),
         )
@@ -328,6 +337,7 @@ class TestBasisProfielReader:
         signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
             retry_after=datetime.now(UTC) - timedelta(hours=1),
             last_updated=datetime.now(UTC),
         )
@@ -344,6 +354,7 @@ class TestBasisProfielReader:
         signaal = SignaalORM(id="s1", kvknummer="12345678", timestamp=datetime.now(UTC), signaal_type="UPDATE")
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
             retry_after=datetime.now(UTC) - timedelta(hours=1),
             last_updated=datetime.now(UTC),
         )
@@ -357,6 +368,7 @@ class TestBasisProfielReader:
         """Record with unexpired retry_after is not returned as outdated."""
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
             retry_after=datetime.now(UTC) + timedelta(hours=24),
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
@@ -373,10 +385,11 @@ class TestBasisProfielReader:
         outdated = reader.get_outdated_kvk_nummers()
         assert "12345678" not in outdated
 
-    def test_get_outdated_includes_expired_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
-        """Record with expired retry_after is returned as outdated when signal is newer."""
+    def test_get_outdated_excludes_expired_retry_after(self, db_session: Session, reader: BasisProfielReader) -> None:
+        """Record with expired retry_after is NOT returned as outdated — routes through missing instead."""
         profile = BasisProfielORM(
             kvk_nummer="12345678",
+            status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
             retry_after=datetime.now(UTC) - timedelta(hours=1),
             last_updated=datetime(2024, 1, 1, 10, 0, 0, tzinfo=UTC),
         )
@@ -391,4 +404,4 @@ class TestBasisProfielReader:
         db_session.commit()
 
         outdated = reader.get_outdated_kvk_nummers()
-        assert "12345678" in outdated
+        assert "12345678" not in outdated
