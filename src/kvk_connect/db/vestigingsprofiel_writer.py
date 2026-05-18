@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from kvk_connect.db.historie_utils import _VESTIGINGSPROFIEL_BUSINESS_FIELDS, compute_changed_fields
 from kvk_connect.models.domain.vestigingsprofiel_domain import VestigingsProfielDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.vestigingsprofiel_historie_orm import VestigingsProfielHistorieORM
 from kvk_connect.models.orm.vestigingsprofiel_orm import VestigingsProfielORM
 from kvk_connect.utils.tools import parse_kvk_datum
@@ -43,18 +44,24 @@ class VestigingsProfielWriter:
         if self._session:
             self._session.commit()
 
-    def mark_niet_leverbaar(self, vestigingsnummer: str, code: str) -> None:
+    def mark_uitgeschreven(self, vestigingsnummer: str, code: str) -> None:
         """Schrijf tombstone voor permanent niet-leverbaar vestigingsnummer."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         existing = self._session.get(VestigingsProfielORM, vestigingsnummer)
         if existing:
+            existing.status = KVKStatus.UITGESCHREVEN
             existing.niet_leverbaar_code = code
-            existing.last_updated = datetime.now(UTC)
+            existing.retry_after = None
+            existing.last_updated = now
         else:
             self._session.add(
                 VestigingsProfielORM(
-                    vestigingsnummer=vestigingsnummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC)
+                    vestigingsnummer=vestigingsnummer,
+                    status=KVKStatus.UITGESCHREVEN,
+                    niet_leverbaar_code=code,
+                    last_updated=now,
                 )
             )
         self._session.commit()
@@ -63,16 +70,19 @@ class VestigingsProfielWriter:
         """Stel retry_after in voor tijdelijk niet-leverbaar vestigingsnummer."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         existing = self._session.get(VestigingsProfielORM, vestigingsnummer)
         if existing:
-            existing.retry_after = datetime.now(UTC) + delay
-            existing.last_updated = datetime.now(UTC)
+            existing.status = KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
+            existing.retry_after = now + delay
+            existing.last_updated = now
         else:
             self._session.add(
                 VestigingsProfielORM(
                     vestigingsnummer=vestigingsnummer,
-                    retry_after=datetime.now(UTC) + delay,
-                    last_updated=datetime.now(UTC),
+                    status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
+                    retry_after=now + delay,
+                    last_updated=now,
                 )
             )
         self._session.commit()
@@ -152,8 +162,12 @@ class VestigingsProfielWriter:
 
     @staticmethod
     def _to_orm(domein_obj: VestigingsProfielDomain) -> VestigingsProfielORM:
+        registratie_datum_einde_vestiging = parse_kvk_datum(domein_obj.registratie_datum_einde_vestiging)
         return VestigingsProfielORM(
             vestigingsnummer=domein_obj.vestigingsnummer,
+            status=KVKStatus.UITGESCHREVEN if registratie_datum_einde_vestiging else KVKStatus.ACTIEF,
+            niet_leverbaar_code=None,
+            retry_after=None,
             kvk_nummer=domein_obj.kvk_nummer,
             rsin=domein_obj.rsin,
             ind_non_mailing=domein_obj.ind_non_mailing,
@@ -188,5 +202,5 @@ class VestigingsProfielWriter:
             bzk_adres_gps_latitude=VestigingsProfielWriter._parse_gps(domein_obj.bzk_adres_gps_latitude, "latitude"),
             bzk_adres_gps_longitude=VestigingsProfielWriter._parse_gps(domein_obj.bzk_adres_gps_longitude, "longitude"),
             registratie_datum_aanvang_vestiging=parse_kvk_datum(domein_obj.registratie_datum_aanvang_vestiging),
-            registratie_datum_einde_vestiging=parse_kvk_datum(domein_obj.registratie_datum_einde_vestiging),
+            registratie_datum_einde_vestiging=registratie_datum_einde_vestiging,
         )

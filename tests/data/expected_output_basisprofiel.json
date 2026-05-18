@@ -14,5 +14,5 @@
   "totaalWerkzamePersonen": 10,
   "websites": "https://example.com",
   "RegistratieDatumAanvang": "01-01-2020",
-  "RegistratieDatumEinde": "31-12-2025"
+  "RegistratieDatumEinde": null
 }

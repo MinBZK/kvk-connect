@@ -4,8 +4,7 @@
   "naam": "Test B.V.",
   "formeleRegistratiedatum": "20200101",
   "materieleRegistratie": {
-    "datumAanvang": "20200101",
-    "datumEinde": "20251231"
+    "datumAanvang": "20200101"
   },
   "totaalWerkzamePersonen": 10,
   "handelsnamen": [

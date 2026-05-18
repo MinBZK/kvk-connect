@@ -4,6 +4,7 @@ from sqlalchemy import func, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.signaal_orm import SignaalORM
 
@@ -19,7 +20,7 @@ class BasisProfielReader:
         Hierdoor beperking op aantal op te halen nummers per keer (limit), zodat we langzaam over tijd inlopen.
 
         Bevat ook records waarvan de retry_after verstreken is (tijdelijk niet-leverbaar).
-        Tombstones (niet_leverbaar_code IS NOT NULL) worden altijd uitgesloten.
+        Tombstones (status UITGESCHREVEN) worden altijd uitgesloten.
         """
         with Session(self.engine) as session:
             stmt = (
@@ -30,8 +31,7 @@ class BasisProfielReader:
                     BasisProfielORM.kvk_nummer.is_(None)
                     # OF: tijdelijk geblokkeerd maar retry_after verstreken
                     | (
-                        BasisProfielORM.niet_leverbaar_code.is_(None)
-                        & BasisProfielORM.retry_after.is_not(None)
+                        (BasisProfielORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
                         & (BasisProfielORM.retry_after <= func.now())
                     )
                 )
@@ -45,7 +45,7 @@ class BasisProfielReader:
             # Random sample uit de opgehaalde resultaten
             return random.sample(all_kvk_nrs, min(limit, len(all_kvk_nrs)))
 
-    def get_missing_kvk_nummers_count(self, limit: int = 1000) -> int:
+    def get_missing_kvk_nummers_count(self) -> int:
         """Retourneert het totaal aantal KVK nummers die wel in signalen staan maar nog niet in basisprofielen."""
         with Session(self.engine) as session:
             stmt = (
@@ -54,12 +54,10 @@ class BasisProfielReader:
                 .where(
                     BasisProfielORM.kvk_nummer.is_(None)
                     | (
-                        BasisProfielORM.niet_leverbaar_code.is_(None)
-                        & BasisProfielORM.retry_after.is_not(None)
+                        (BasisProfielORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
                         & (BasisProfielORM.retry_after <= func.now())
                     )
                 )
-                .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
 
             result = session.execute(stmt).scalar()
@@ -75,12 +73,7 @@ class BasisProfielReader:
             stmt = (
                 select(SignaalORM.kvknummer)
                 .join(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
-                .where(
-                    SignaalORM.timestamp > BasisProfielORM.last_updated,
-                    BasisProfielORM.niet_leverbaar_code.is_(None),  # Geen tombstones updaten
-                    BasisProfielORM.retry_after.is_(None)
-                    | (BasisProfielORM.retry_after <= func.now()),  # Geen actieve blokkade
-                )
+                .where(SignaalORM.timestamp > BasisProfielORM.last_updated, BasisProfielORM.status == KVKStatus.ACTIEF)
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
@@ -94,11 +87,7 @@ class BasisProfielReader:
             stmt = (
                 select(func.count(func.distinct(SignaalORM.kvknummer)))
                 .join(BasisProfielORM, SignaalORM.kvknummer == BasisProfielORM.kvk_nummer)
-                .where(
-                    SignaalORM.timestamp > BasisProfielORM.last_updated,
-                    BasisProfielORM.niet_leverbaar_code.is_(None),
-                    BasisProfielORM.retry_after.is_(None) | (BasisProfielORM.retry_after <= func.now()),
-                )
+                .where(SignaalORM.timestamp > BasisProfielORM.last_updated, BasisProfielORM.status == KVKStatus.ACTIEF)
             )
             result = session.execute(stmt).scalar()
             return result or 0

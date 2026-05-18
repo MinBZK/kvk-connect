@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from kvk_connect.db.vestigingsprofiel_writer import VestigingsProfielWriter
 from kvk_connect.models.domain.vestigingsprofiel_domain import VestigingsProfielDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.vestigingsprofiel_orm import VestigingsProfielORM
 
 logger = logging.getLogger(__name__)
@@ -221,39 +222,41 @@ class TestVestigingsProfielWriter:
         records = db_session.query(VestigingsProfielORM).all()
         assert len(records) == 3
 
-    # --- mark_niet_leverbaar ---
+    # --- mark_uitgeschreven ---
 
-    def test_mark_niet_leverbaar_writes_tombstone(
+    def test_mark_uitgeschreven_writes_tombstone(
         self, writer: VestigingsProfielWriter, db_session: Session
     ) -> None:
         """Test tombstone record written with correct code."""
         with writer:
-            writer.mark_niet_leverbaar("000000000001", "IPD0005")
+            writer.mark_uitgeschreven("000000000001", "IPD0005")
 
         record = db_session.query(VestigingsProfielORM).filter_by(
             vestigingsnummer="000000000001"
         ).first()
         assert record is not None
         assert record.niet_leverbaar_code == "IPD0005"
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_no_retry_after(
+    def test_mark_uitgeschreven_no_retry_after(
         self, writer: VestigingsProfielWriter, db_session: Session
     ) -> None:
         """Test tombstone does not set retry_after."""
         with writer:
-            writer.mark_niet_leverbaar("000000000001", "IPD0005")
+            writer.mark_uitgeschreven("000000000001", "IPD0005")
 
         record = db_session.query(VestigingsProfielORM).filter_by(
             vestigingsnummer="000000000001"
         ).first()
         assert record.retry_after is None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
-    def test_mark_niet_leverbaar_without_context_raises(
+    def test_mark_uitgeschreven_without_context_raises(
         self, writer: VestigingsProfielWriter
     ) -> None:
-        """Test mark_niet_leverbaar raises without context manager."""
+        """Test mark_uitgeschreven raises without context manager."""
         with pytest.raises(RuntimeError, match="Session not initialized"):
-            writer.mark_niet_leverbaar("000000000001", "IPD0005")
+            writer.mark_uitgeschreven("000000000001", "IPD0005")
 
     # --- mark_retry_after ---
 
@@ -269,6 +272,7 @@ class TestVestigingsProfielWriter:
         ).first()
         assert record is not None
         assert record.retry_after is not None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_timestamp_in_future(
         self, writer: VestigingsProfielWriter, db_session: Session
@@ -283,6 +287,7 @@ class TestVestigingsProfielWriter:
             vestigingsnummer="000000000001"
         ).first()
         assert record.retry_after > before + timedelta(hours=1)
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_no_niet_leverbaar_code(
         self, writer: VestigingsProfielWriter, db_session: Session
@@ -295,6 +300,7 @@ class TestVestigingsProfielWriter:
             vestigingsnummer="000000000001"
         ).first()
         assert record.niet_leverbaar_code is None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
 
     def test_mark_retry_after_without_context_raises(
         self, writer: VestigingsProfielWriter
@@ -303,7 +309,7 @@ class TestVestigingsProfielWriter:
         with pytest.raises(RuntimeError, match="Session not initialized"):
             writer.mark_retry_after("000000000001", timedelta(hours=1))
 
-    def test_mark_niet_leverbaar_preserves_existing_data(
+    def test_mark_uitgeschreven_preserves_existing_data(
         self, writer: VestigingsProfielWriter, db_session: Session
     ) -> None:
         """Tombstone must not erase previously stored fields (regression: merge() data loss)."""
@@ -318,7 +324,7 @@ class TestVestigingsProfielWriter:
             writer.add(domain)
 
         with writer:
-            writer.mark_niet_leverbaar("000000000001", "IPD0005")
+            writer.mark_uitgeschreven("000000000001", "IPD0005")
 
         record = db_session.query(VestigingsProfielORM).filter_by(
             vestigingsnummer="000000000001"
@@ -326,6 +332,7 @@ class TestVestigingsProfielWriter:
         assert record.niet_leverbaar_code == "IPD0005"
         assert record.bzk_adres_straatnaam is not None
         assert record.registratie_datum_einde_vestiging is not None
+        assert record.status == KVKStatus.UITGESCHREVEN
 
     def test_mark_retry_after_preserves_existing_data(
         self, writer: VestigingsProfielWriter, db_session: Session
@@ -349,6 +356,27 @@ class TestVestigingsProfielWriter:
         assert record.retry_after is not None
         assert record.bzk_adres_straatnaam is not None
         assert record.registratie_datum_einde_vestiging is not None
+        assert record.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
+
+    def test_add_after_tombstone_clears_tombstone(
+        self, writer: VestigingsProfielWriter, db_session: Session
+    ) -> None:
+        """add() on a tombstoned vestigingsprofiel clears the tombstone when the API returns valid data."""
+        with writer:
+            writer.mark_uitgeschreven("000000000001", "IPD0005")
+
+        domain = _make_domain("000000000001", bzk_adres_straatnaam="Teststraat")
+
+        with writer:
+            writer.add(domain)
+
+        record = db_session.query(VestigingsProfielORM).filter_by(
+            vestigingsnummer="000000000001"
+        ).first()
+        assert record is not None
+        assert record.status == KVKStatus.ACTIEF
+        assert record.niet_leverbaar_code is None
+        assert record.bzk_adres_straatnaam == "Teststraat"
 
     # --- new field coverage ---
 

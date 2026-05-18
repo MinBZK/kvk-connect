@@ -1,6 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.signaal_orm import SignaalORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 from kvk_connect.models.orm.vestigingsprofiel_orm import VestigingsProfielORM
@@ -45,6 +46,31 @@ class VestigingsProfielReader:
             result = session.execute(stmt).scalar()
             return result or 0
 
+    def get_vestigingsprofielen_met_verlopen_retry(self, limit: int = 1000) -> list[str]:
+        """Vestigingsnummers met status TIJDELIJK_NIET_BESCHIKBAAR waarvan retry_after verstreken is.
+
+        Deze profielen moeten opnieuw opgehaald worden nu de wachttijd voorbij is.
+        """
+        with Session(self.engine) as session:
+            stmt = (
+                select(VestigingsProfielORM.vestigingsnummer)
+                .where(VestigingsProfielORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
+                .where(VestigingsProfielORM.retry_after <= func.now())
+                .distinct()
+                .limit(limit)
+            )
+            return list(session.execute(stmt).scalars().all())
+
+    def get_vestigingsprofielen_met_verlopen_retry_count(self) -> int:
+        """Retourneert het totaal aantal vestigingsprofielen met een verlopen retry_after."""
+        with Session(self.engine) as session:
+            stmt = (
+                select(func.count(func.distinct(VestigingsProfielORM.vestigingsnummer)))
+                .where(VestigingsProfielORM.status == KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR)
+                .where(VestigingsProfielORM.retry_after <= func.now())
+            )
+            return session.execute(stmt).scalar() or 0
+
     def get_outdated_vestigingen_count(self) -> int:
         """Retourneert het totaal aantal vestigingsnummers met vestiging nieuwer dan het vestigingsprofiel."""
         with Session(self.engine) as session:
@@ -53,8 +79,7 @@ class VestigingsProfielReader:
                 .join(VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
                 .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
-                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
-                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
+                .where(VestigingsProfielORM.status == KVKStatus.ACTIEF)
             )
             result = session.execute(stmt).scalar()
             return result or 0
@@ -68,8 +93,7 @@ class VestigingsProfielReader:
                 .where(
                     SignaalORM.timestamp > VestigingsProfielORM.last_updated, SignaalORM.vestigingsnummer.is_not(None)
                 )
-                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
-                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
+                .where(VestigingsProfielORM.status == KVKStatus.ACTIEF)
             )
             result = session.execute(stmt).scalar()
             return result or 0
@@ -83,8 +107,7 @@ class VestigingsProfielReader:
                 .join(VestigingsProfielORM, VestigingenORM.vestigingsnummer == VestigingsProfielORM.vestigingsnummer)
                 .where(VestigingenORM.last_updated > VestigingsProfielORM.last_updated)
                 .where(VestigingenORM.vestigingsnummer != VestigingenORM.SENTINEL_VESTIGINGSNUMMER)
-                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
-                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
+                .where(VestigingsProfielORM.status == KVKStatus.ACTIEF)
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )
@@ -106,8 +129,7 @@ class VestigingsProfielReader:
                     SignaalORM.timestamp > VestigingsProfielORM.last_updated,
                     SignaalORM.vestigingsnummer.is_not(None),  # Alleen vestigingsprofielen, geen basisprofielen
                 )
-                .where(VestigingsProfielORM.niet_leverbaar_code.is_(None))
-                .where(VestigingsProfielORM.retry_after.is_(None) | (VestigingsProfielORM.retry_after <= func.now()))
+                .where(VestigingsProfielORM.status == KVKStatus.ACTIEF)
                 .distinct()
                 .limit(limit)  # maximaal limit nieuwe per keer ophalen
             )

@@ -9,6 +9,7 @@ from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
 from kvk_connect.db.kvkvestigingen_reader import KvKVestigingenReader
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
 
@@ -22,7 +23,7 @@ class TestKvKVestigingenReader:
 
     @pytest.fixture
     def basisprofiel(self, db_session: Session) -> BasisProfielORM:
-        bp = BasisProfielORM(kvk_nummer="12345678", last_updated=datetime(2024, 1, 1, tzinfo=UTC))
+        bp = BasisProfielORM(kvk_nummer="12345678", status=KVKStatus.ACTIEF, last_updated=datetime(2024, 1, 1, tzinfo=UTC))
         db_session.add(bp)
         db_session.commit()
         return bp
@@ -55,7 +56,7 @@ class TestKvKVestigingenReader:
         self, db_session: Session, reader: KvKVestigingenReader
     ) -> None:
         for i in range(5):
-            db_session.add(BasisProfielORM(kvk_nummer=f"1234567{i}"))
+            db_session.add(BasisProfielORM(kvk_nummer=f"1234567{i}", status=KVKStatus.ACTIEF))
         db_session.commit()
 
         missing = reader.get_missing_kvk_nummers(limit=3)
@@ -68,7 +69,7 @@ class TestKvKVestigingenReader:
         self, db_session: Session, reader: KvKVestigingenReader
     ) -> None:
         for i in range(3):
-            db_session.add(BasisProfielORM(kvk_nummer=f"1234567{i}"))
+            db_session.add(BasisProfielORM(kvk_nummer=f"1234567{i}", status=KVKStatus.ACTIEF))
         db_session.commit()
 
         assert reader.get_missing_kvk_nummers_count() == 3
@@ -76,8 +77,8 @@ class TestKvKVestigingenReader:
     def test_get_missing_excludes_tombstone(
         self, db_session: Session, reader: KvKVestigingenReader
     ) -> None:
-        """BasisProfielORM with niet_leverbaar_code is not returned as missing."""
-        db_session.add(BasisProfielORM(kvk_nummer="12345678", niet_leverbaar_code="IPD0005"))
+        """BasisProfielORM with uitgeschreven status is not returned as missing."""
+        db_session.add(BasisProfielORM(kvk_nummer="12345678", status=KVKStatus.UITGESCHREVEN, niet_leverbaar_code="IPD0005"))
         db_session.commit()
 
         assert "12345678" not in reader.get_missing_kvk_nummers(limit=10)
@@ -85,7 +86,7 @@ class TestKvKVestigingenReader:
     def test_get_missing_count_excludes_tombstone(
         self, db_session: Session, reader: KvKVestigingenReader
     ) -> None:
-        db_session.add(BasisProfielORM(kvk_nummer="12345678", niet_leverbaar_code="IPD0005"))
+        db_session.add(BasisProfielORM(kvk_nummer="12345678", status=KVKStatus.UITGESCHREVEN, niet_leverbaar_code="IPD0005"))
         db_session.commit()
 
         assert reader.get_missing_kvk_nummers_count() == 0
@@ -176,7 +177,7 @@ class TestKvKVestigingenReader:
     def test_get_outdated_excludes_tombstone(
         self, db_session: Session, reader: KvKVestigingenReader
     ) -> None:
-        """Sentinel row with niet_leverbaar_code blocks the KVK nummer from outdated list."""
+        """Sentinel row with uitgeschreven status blocks the KVK nummer from outdated list."""
         db_session.add(
             BasisProfielORM(kvk_nummer="12345678", last_updated=datetime(2024, 2, 1, tzinfo=UTC))
         )
@@ -191,6 +192,7 @@ class TestKvKVestigingenReader:
             VestigingenORM(
                 kvk_nummer="12345678",
                 vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+                status=KVKStatus.UITGESCHREVEN,
                 niet_leverbaar_code="IPD0005",
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -216,6 +218,7 @@ class TestKvKVestigingenReader:
             VestigingenORM(
                 kvk_nummer="12345678",
                 vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+                status=KVKStatus.UITGESCHREVEN,
                 niet_leverbaar_code="IPD0005",
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -244,6 +247,7 @@ class TestKvKVestigingenReader:
             VestigingenORM(
                 kvk_nummer="12345678",
                 vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) + timedelta(hours=24),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )
@@ -270,6 +274,7 @@ class TestKvKVestigingenReader:
             VestigingenORM(
                 kvk_nummer="12345678",
                 vestigingsnummer=VestigingenORM.SENTINEL_VESTIGINGSNUMMER,
+                status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
                 retry_after=datetime.now(UTC) - timedelta(hours=1),
                 last_updated=datetime(2024, 1, 1, tzinfo=UTC),
             )

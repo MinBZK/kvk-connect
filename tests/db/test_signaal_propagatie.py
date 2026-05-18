@@ -33,6 +33,7 @@ from kvk_connect.db.vestigingsprofiel_writer import VestigingsProfielWriter
 from kvk_connect.models.api.basisprofiel_api import BasisProfielAPI
 from kvk_connect.models.api.vestigingen_api import VestigingenAPI
 from kvk_connect.models.api.vestigingsprofiel_api import VestigingsProfielAPI
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.models.orm.signaal_orm import SignaalORM
 from kvk_connect.models.orm.vestigingen_orm import VestigingenORM
@@ -241,7 +242,7 @@ class TestSignaalPropagatie:
         """
         # Setup: bedrijf al in DB
         old_ts = T0 - timedelta(days=30)
-        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Oud B.V.", last_updated=old_ts))
+        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Oud B.V.", status=KVKStatus.ACTIEF, last_updated=old_ts))
         db_session.add(
             VestigingenORM(kvk_nummer="12345678", vestigingsnummer="000000000001", last_updated=old_ts)
         )
@@ -283,13 +284,13 @@ class TestSignaalPropagatie:
         """
         # Setup: bedrijf volledig in DB
         old_ts = T0 - timedelta(days=30)
-        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Test B.V.", last_updated=old_ts))
+        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Test B.V.", status=KVKStatus.ACTIEF, last_updated=old_ts))
         db_session.add(
             VestigingenORM(kvk_nummer="12345678", vestigingsnummer="000000000001", last_updated=old_ts)
         )
         db_session.add(
             VestigingsProfielORM(
-                vestigingsnummer="000000000001", kvk_nummer="12345678", last_updated=old_ts
+                vestigingsnummer="000000000001", kvk_nummer="12345678", status=KVKStatus.ACTIEF, last_updated=old_ts
             )
         )
         db_session.commit()
@@ -341,13 +342,13 @@ class TestSignaalPropagatie:
         Verwacht: na keten-propagatie worden ontbrekende vestigingsprofielen opgepikt.
         """
         old_ts = T0 - timedelta(days=30)
-        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Test B.V.", last_updated=old_ts))
+        db_session.add(BasisProfielORM(kvk_nummer="12345678", naam="Test B.V.", status=KVKStatus.ACTIEF, last_updated=old_ts))
         db_session.add(
             VestigingenORM(kvk_nummer="12345678", vestigingsnummer="000000000001", last_updated=old_ts)
         )
         db_session.add(
             VestigingsProfielORM(
-                vestigingsnummer="000000000001", kvk_nummer="12345678", last_updated=old_ts
+                vestigingsnummer="000000000001", kvk_nummer="12345678", status=KVKStatus.ACTIEF, last_updated=old_ts
             )
         )
         db_session.commit()

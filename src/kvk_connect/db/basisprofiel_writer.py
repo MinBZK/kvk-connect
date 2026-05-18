@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from kvk_connect.db.historie_utils import _BASISPROFIEL_BUSINESS_FIELDS, compute_changed_fields
 from kvk_connect.models.domain import BasisProfielDomain
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.basisprofiel_historie_orm import BasisProfielHistorieORM
 from kvk_connect.models.orm.basisprofiel_orm import BasisProfielORM
 from kvk_connect.utils.tools import parse_kvk_datum
@@ -92,17 +93,22 @@ class BasisProfielWriter:
         if self._count % self.batch_size == 0:
             self._session.commit()
 
-    def mark_niet_leverbaar(self, kvk_nummer: str, code: str) -> None:
+    def mark_uitgeschreven(self, kvk_nummer: str, code: str) -> None:
         """Schrijf tombstone voor permanent niet-leverbaar KVK nummer (bijv. IPD0005)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         existing = self._session.get(BasisProfielORM, kvk_nummer)
         if existing:
+            existing.status = KVKStatus.UITGESCHREVEN
             existing.niet_leverbaar_code = code
-            existing.last_updated = datetime.now(UTC)
+            existing.retry_after = None
+            existing.last_updated = now
         else:
             self._session.add(
-                BasisProfielORM(kvk_nummer=kvk_nummer, niet_leverbaar_code=code, last_updated=datetime.now(UTC))
+                BasisProfielORM(
+                    kvk_nummer=kvk_nummer, status=KVKStatus.UITGESCHREVEN, niet_leverbaar_code=code, last_updated=now
+                )
             )
         self._session.commit()
 
@@ -110,22 +116,31 @@ class BasisProfielWriter:
         """Stel retry_after in voor tijdelijk niet-leverbaar KVK nummer (bijv. IPD1002/IPD1003)."""
         if not self._session:
             raise RuntimeError("Session not initialized. Use context manager.")
+        now = datetime.now(UTC)
         existing = self._session.get(BasisProfielORM, kvk_nummer)
         if existing:
-            existing.retry_after = datetime.now(UTC) + delay
-            existing.last_updated = datetime.now(UTC)
+            existing.status = KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR
+            existing.retry_after = now + delay
+            existing.last_updated = now
         else:
             self._session.add(
                 BasisProfielORM(
-                    kvk_nummer=kvk_nummer, retry_after=datetime.now(UTC) + delay, last_updated=datetime.now(UTC)
+                    kvk_nummer=kvk_nummer,
+                    status=KVKStatus.TIJDELIJK_NIET_BESCHIKBAAR,
+                    retry_after=now + delay,
+                    last_updated=now,
                 )
             )
         self._session.commit()
 
     @staticmethod
     def _to_orm(api_obj: BasisProfielDomain) -> BasisProfielORM:
+        registratie_datum_einde = parse_kvk_datum(api_obj.registratie_datum_einde)
         return BasisProfielORM(
             kvk_nummer=api_obj.kvk_nummer,
+            status=KVKStatus.UITGESCHREVEN if registratie_datum_einde else KVKStatus.ACTIEF,
+            niet_leverbaar_code=None,
+            retry_after=None,
             naam=api_obj.naam,
             ind_non_mailing=api_obj.ind_non_mailing,
             formele_registratiedatum=parse_kvk_datum(api_obj.formele_registratiedatum),
@@ -139,5 +154,5 @@ class BasisProfielWriter:
             totaal_werkzame_personen=api_obj.totaal_werkzame_personen,
             websites=api_obj.websites,
             registratie_datum_aanvang=parse_kvk_datum(api_obj.registratie_datum_aanvang),
-            registratie_datum_einde=parse_kvk_datum(api_obj.registratie_datum_einde),
+            registratie_datum_einde=registratie_datum_einde,
         )

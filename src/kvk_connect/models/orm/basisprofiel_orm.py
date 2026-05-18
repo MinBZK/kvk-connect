@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy import Date, DateTime, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from kvk_connect.models.enums import KVKStatus
 from kvk_connect.models.orm.base import Base
 
 
@@ -37,6 +38,7 @@ class BasisProfielORM(Base):
     registratie_datum_einde: Mapped[datetime | None] = mapped_column("RegistratieDatumEinde", Date)
 
     # Foutafhandeling
+    status: Mapped[KVKStatus | None] = mapped_column("status", String(32), nullable=True)
     niet_leverbaar_code: Mapped[str | None] = mapped_column(
         "niet_leverbaar_code", String(16), nullable=True, default=None
     )
